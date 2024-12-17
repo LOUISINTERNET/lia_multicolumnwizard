@@ -1,0 +1,28 @@
+.ls-multicolumnwizard-row {
+  padding-right: 200px;
+  position: relative;
+}
+
+.ls-multicolumnwizard-buttons {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+}
+
+.ls-multicolumnwizard-row-container
+.ls-multicolumnwizard-row:first-child
+.bnt-up {
+  visibility: hidden;
+}
+
+.ls-multicolumnwizard-row-container
+.ls-multicolumnwizard-row:last-child
+.btn-down {
+  visibility: hidden;
+}
+
+.ls-multicolumnwizard-row-container
+.ls-multicolumnwizard-row:last-child:first-child
+.btn-delete {
+  visibility: hidden;
+}

@@ -1,0 +1,20 @@
+<div  xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+  <div class="row">
+    <f:for each="{configuration}" as="conf" key="name">
+      <div class="{conf.divClass}">
+          <f:if condition="{conf.showLabelAboveField}">
+              <f:if condition="{conf.label}">
+                  <f:if condition="{f:translate(key: '{conf.label}', extensionName: 'LiaMulticolumnwizard')}">
+                      <f:then>{f:translate(key: '{conf.label}', extensionName: 'LiaMulticolumnwizard')}</f:then>
+                      <f:else>{conf.label}</f:else>
+                  </f:if>
+              </f:if>
+          </f:if>
+        <f:render partial="Fields/{conf.type}" arguments="{_all}" />
+      </div>
+    </f:for>
+  </div>
+
+  <f:render partial="ColumnActions" arguments="{_all}" />
+</div>

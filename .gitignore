@@ -1,0 +1,11 @@
+*~
+*.bak
+*.swp
+.DS_Store
+*.vscode
+/.Build/*
+/vendor/*
+/.cache
+.php_cs.cache
+.php-cs-fixer.cache
+composer.lock
