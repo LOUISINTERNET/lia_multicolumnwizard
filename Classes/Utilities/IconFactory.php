@@ -20,7 +20,7 @@ class IconFactory
      *
      * @return array items
      */
-    public static function getIcons(string $iconPath = 'EXT:lia_package/Resources/Public/Icons.json'): array
+    public static function getIcons(string $iconPath): array
     {
         $file = GeneralUtility::getFileAbsFileName($iconPath);
         $items = ['' => '---'];

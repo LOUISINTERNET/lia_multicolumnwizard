@@ -1,15 +1,16 @@
 .. _ViewHelper:
+
 ==========
 ViewHelper
 ==========
 
-H2 GetMultiColumnWizardValuesViewHelper
+GetMultiColumnWizardValuesViewHelper
 =======================================
 
 This Viewhelper converts the json string to an array and returns it.
 
-H3 Arguments
-============
+Arguments
+---------
 
 .. csv-table:: Arguments
   :header: "Argument", "Datatype" ,"Description" ,"Required" ,"Default"
@@ -18,8 +19,8 @@ H3 Arguments
   "json", "String", "The json string of the multicolumn field.", "false", "null"
   "associative", "Boolean", "If set to true you will get an associative array otherwise a stdclass object.", "false", "false"
 
-H3 How to use
-=============
+How to use
+----------
 
 You have to save the return of this viewhelper into a varible. Make sure that the namespace is loaded
 in the Tempalte where you want to use the viewhelpers of this extension.
@@ -36,3 +37,27 @@ in the Tempalte where you want to use the viewhelpers of this extension.
   :caption: Convert the multicolumnwizard json strint into an array
 
   <f:variable name="mcwArray" value="{mcw:getMultiColumnWizardValues(json: '{yourData.yourField}', associative: true)}" />
+
+GetSelectValuesViewHelper
+========================
+
+This ViewHelper call a function with given parameter.
+
+.. csv-table:: Arguments
+  :header: "Argument", "Datatype" ,"Description" ,"Required" ,"Default"
+  :widths: 20, 20, 20, 20, 20
+
+  "configuration", "String", "The json string of the multicolumn field.", "false", "null"
+  "optionsFunction", "Array", "This array has to contain the full classname, the method to call and all the parameter that are needed to call this method.", "false", "null"
+
+IsEmptyViewHelper
+=================
+
+This ViewHelper check if the given json string contains only empty entries and returns a true if every item is empty and false if just one of the items is not empty.
+
+
+.. csv-table:: Arguments
+  :header: "Argument", "Datatype" ,"Description" ,"Required" ,"Default"
+  :widths: 20, 20, 20, 20, 20
+
+  "json", "String", "The json string generated from the multicolumnwizard.", "true", ""

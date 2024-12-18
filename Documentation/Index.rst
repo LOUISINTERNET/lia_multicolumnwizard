@@ -6,8 +6,6 @@
 LiaMulticolumnwizard
 ====================
 
-----
-
 ..  card-grid::
     :columns: 1
     :columns-md: 2
@@ -15,28 +13,41 @@ LiaMulticolumnwizard
     :class: pb-4
     :card-height: 100
 
-    ..  card:: Installation
+    ..  card:: :ref:`Installation <Installation>`
 
-        How to install this extension.
+        A quick introduction in how to use this extension.
 
-        ..  card-footer:: :ref:`View the installation steps <installation>`
-            :button-style: btn btn-secondary stretched-link
+    ..  card:: :ref:`Configuration <configuration>`
 
-    ..  card:: Configuration
+        How to configure the multicolumnwizard field.
 
-        In this section you should cover all the needed configurations to set up
-        the <extension-key> correctly. Additionally you should present an
-        overview about all available configurations one can set up in <extension-key>.
+    ..  card:: :ref:`ViewHelper <viewHelper>`
 
-        ..  card-footer:: :ref:`Learn how to configure the extension <configuration>`
-            :button-style: btn btn-secondary stretched-link
+        A documentation of provided ViewHelper and how to use them.
 
-    ..  card:: ViewHelper
+:Extension key:
+   lia_multicolumnwizard
 
-        Here you will find a list of all ViewHelpers and their arguments.
+:Package name:
+   lia/lia_multicolumnwizard
 
-        ..  card-footer:: :ref:`Provided ViewHelper <ViewHelper>`
-            :button-style: btn btn-secondary stretched-link
+:Version:
+   |release|
+
+:Language:
+   en
+
+:Author:
+   LOUIS TYPO3 Developers
+
+:License:
+   This document is published under the
+   `GNU General Public License v2.0 or later <https://spdx.org/licenses/GPL-2.0-or-later.html>`__.
+
+:Rendered:
+   |today|
+
+----
 
 ..  toctree::
     :hidden:
@@ -45,38 +56,6 @@ LiaMulticolumnwizard
     Installation/Index
     Configuration/Index
     ViewHelper/Index
-
-..  Meta Menu
-
-..  toctree::
-    :hidden:
-
-    Sitemap
-
-----
-
-:Extension key:
-    lia_multicolumnwizard
-
-:Package name:
-    <package-name>
-
-:Version:
-    |release|
-
-:Language:
-    en
-
-:Author:
-    <author>
-
-:License:
-    This document is published under the
-    `Creative Commons BY 4.0 <https://creativecommons.org/licenses/by/4.0/>`__
-    license.
-
-:Rendered:
-    |today|
 
 
 

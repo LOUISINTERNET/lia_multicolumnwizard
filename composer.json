@@ -1,49 +1,49 @@
 {
-  "name": "lia/lia_multicolumnwizard",
-  "type": "typo3-cms-extension",
-  "description": "",
-  "authors": [
-    {
-      "name": "LOUIS TYPO3 Developers",
-      "email": "info@dev.louis.info",
-      "homepage": "https://www.louis.info",
-      "role": "Developer"
-    }
-  ],
-  "support": {
-    "email": "info@dev.louis.info",
-    "source": "https://github.com/LouisInternet/lia_multicolumnwizard",
-    "docs": "https://github.com/LouisInternet/lia_multicolumnwizard/README.md",
-    "issues": "https://github.com/LouisInternet/lia_multicolumnwizard/issues"
-  },
-  "version": "1.0.0",
-  "require": {
-    "typo3/cms-core": "^12.4",
-    "typo3/coding-standards": "^0.8.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "LIA\\LiaMulticolumnwizard\\": "Classes"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "LIA\\LiaMulticolumnwizard\\Tests\\": "Tests"
-    }
-  },
-  "replace": {
-    "lia/lia-multicolumnwizard": "self.version",
-    "typo3-ter/lia-multicolumnwizard": "self.version"
-  },
-  "extra": {
-    "typo3/cms": {
-      "extension-key": "lia_multicolumnwizard"
-    }
-  },
-  "config": {
-    "allow-plugins": {
-      "typo3/cms-composer-installers": true,
-      "typo3/class-alias-loader": true
-    }
-  }
+	"name": "lia/lia_multicolumnwizard",
+	"type": "typo3-cms-extension",
+	"description": "",
+	"authors": [
+		{
+			"name": "LOUIS TYPO3 Developers",
+			"email": "info@dev.louis.info",
+			"homepage": "https://www.louis.info",
+			"role": "Developer"
+		}
+	],
+	"support": {
+		"email": "info@dev.louis.info",
+		"source": "https://github.com/LouisInternet/lia_multicolumnwizard",
+		"docs": "https://github.com/LouisInternet/lia_multicolumnwizard/README.md",
+		"issues": "https://github.com/LouisInternet/lia_multicolumnwizard/issues"
+	},
+	"version": "1.0.0",
+	"require": {
+		"typo3/cms-core": "^12.4",
+		"typo3/coding-standards": "^0.8.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"LIA\\LiaMulticolumnwizard\\": "Classes"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"LIA\\LiaMulticolumnwizard\\Tests\\": "Tests"
+		}
+	},
+	"replace": {
+		"lia/lia-multicolumnwizard": "self.version",
+		"typo3-ter/lia-multicolumnwizard": "self.version"
+	},
+	"extra": {
+		"typo3/cms": {
+			"extension-key": "lia_multicolumnwizard"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"typo3/cms-composer-installers": true,
+			"typo3/class-alias-loader": true
+		}
+	}
 }

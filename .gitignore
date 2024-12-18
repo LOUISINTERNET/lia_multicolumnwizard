@@ -4,6 +4,8 @@
 .DS_Store
 *.vscode
 /.Build/*
+Documentation-GENERATED-temp/*
+public/*
 /vendor/*
 /.cache
 .php_cs.cache

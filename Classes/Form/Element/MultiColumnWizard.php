@@ -24,6 +24,7 @@ use TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\InvalidPathException;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Folder;
+use TYPO3\CMS\Core\Service\DependencyOrderingService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
@@ -261,7 +262,7 @@ class MultiColumnWizard extends AbstractFormElement
         if (is_array($pageTs['templates.']['typo3_ext/lia_multicolumnwizard.'] ?? false)) {
             $overrides = $pageTs['templates.']['typo3_ext/lia_multicolumnwizard.'];
             ksort($overrides);
-            $packageManager = GeneralUtility::makeInstance(PackageManager::class);
+            $packageManager = GeneralUtility::makeInstance(PackageManager::class, new DependencyOrderingService());
 
             foreach ($overrides as $override) {
                 $pathParts = GeneralUtility::trimExplode(':', $override, true);
