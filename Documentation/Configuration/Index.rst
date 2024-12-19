@@ -14,20 +14,20 @@ Implementation on parent elements
 .. code-block:: php
     :caption: TCA field Configuration
 
-    'fieldname' => [
+    'multicolumnwizard' => [
         'exclude' => 1,
         'label' => 'MulticolumnField',
         'config' => [
             'type' => 'user',
             'renderType' => 'multiColumnWizard',
             'columnFields' => [
-                'fieldName_1' => [
+                'exampleMultiColumnWizardTextInput' => [
                     'divClass' => 'col-sm-2',
                     'type' => 'text',
-                    'label' => 'Textxfield'
+                    'label' => 'Textfield'
                     'showLabelAboveField' => true,
                 ],
-                'fieldName_2' => [
+                'exampleMultiColumnWizardTextareaInput' => [
                     'divClass' => 'col-sm-2',
                     'type' => 'textarea',
                     'label' => 'Textarea',
@@ -35,12 +35,12 @@ Implementation on parent elements
                     'rows' => 5
                     'showLabelAboveField' => true,
                 ],
-                'fieldName_3' => [
+                'exampleMultiColumnWizardCheckbox' => [
                     'divClass' => 'col-sm-2',
                     'type' => 'checkbox',
                     'label' => 'Checkbox'
                 ],
-                'fieldName_4' => [
+                'exampleMultiColumnWizardSelect' => [
                     'divClass' => 'col-sm-2',
                     'type' => 'select',
                     'label' => 'Select',
@@ -52,28 +52,28 @@ Implementation on parent elements
                         'value5' => 'name5'
                     ]
                 ],
-                'fieldName_5' => [
+                'exampleMultiColumnWizardSelectIcon' => [
                     'divClass' => 'col-sm-2',
                     'label' => 'Icon',
                     'type' => 'select',
                     'options' => '',
                     'optionsFunction' => ['\\LIA\\LiaMulticolumnwizard\\Utilities\\IconFactory','getIcons',['EXT:my_extkey/Resources/Public/path/to/my/Icons.json']],
                 ],
-                'fieldName_6' => [
+                'exampleMultiColumnWizardReference' => [
                     'divClass' => 'col-sm-2',
                     'label' => 'Reference',
                     'type' => 'select',
                     'options' => '',
                     'optionsFunction' => ['\\LIA\\LiaMulticolumnwizard\\Utilities\\ReferenceFactory','getReference',['pages', 'uid', 'title']],
                 ],
-                'fieldName_7' => [
+                'exampleMultiColumnWizardLanguage' => [
                     'divClass' => 'col-sm-2',
                     'label' => 'Languages',
                     'type' => 'select',
                     'options' => '',
                     'optionsFunction' => ['\\LIA\\LiaMulticolumnwizard\\Utilities\\TCAFactory','getAvailableLanguagesForAllSites',[]],
                 ],
-                'fieldName_8' => [
+                'exampleMultiColumnWizardLinkInput' => [
                     'divClass' => 'col-sm-2',
                     'type' => 'link',
                     'label' => 'Link',
@@ -84,7 +84,7 @@ Implementation on parent elements
     ],
     'fieldname_hidden_link_field' = [
         'exclude' => 1,
-        'label' => 'Hidden link field for the link wizard of fieldName_8',
+        'label' => 'Hidden link field used by the link wizard of exampleMultiColumnWizardLinkInput',
         'config' => [
             'type' => 'link',
         ]
@@ -135,17 +135,17 @@ In order to use the link feature you need to also create a field of type link in
 .. code-block:: php
     :caption: Example
 
-    $ctype['columnsOverrides']['liaoptional5']['config']['columnFields'] = [
-        'fieldName_8' => [
+    $ctype['columnsOverrides']['multicolumnwizard']['config']['columnFields'] = [
+        'exampleMultiColumnWizardLinkInput' => [
             'divClass' => 'col-sm-2',
             'type' => 'link',
             'label' => 'Link',
-            'linkUseField' => 'liaoptional6',
+            'linkUseField' => 'fieldname_hidden_link_field',
         ],
     ];
 
-    // the hidden link field for fieldName_8
-    $ctype['columnsOverrides']['liaoptional6'] = [
+    // the hidden link field for exampleMultiColumnWizardLinkInput
+    $ctype['columnsOverrides']['fieldname_hidden_link_field'] = [
         'exclude' => 1,
         'label' => 'Link',
         'config' => [
@@ -156,10 +156,10 @@ In order to use the link feature you need to also create a field of type link in
 Implementation on child elements
 --------------------------------
 
-you can use the option `'showLabelAboveField' => true`, if this is set the label will be shown in all rows above the field
+you can use the option `'showLabelAboveField' => true`, if this is set the label will be shown in every row
 
 .. code-block:: php
-    :caption:
+    :caption: Useage of showLabelAboveField
 
     $tca_columns['tx_lia_multicolumnwizard']['config']['columnFields'] = [
         'fieldName_1' => [
@@ -232,10 +232,14 @@ you can use the option `'showLabelAboveField' => true`, if this is set the label
 
     $overrideChildTca['types'][1]['showitem'] = '... ,tx_lia_multicolumnwizard, fieldname_hidden_link_field, ...';
 
+
+
 Override Backend-Template Paths
 -------------------------------
 
 Backendtemplates can be overriden using the `general backend template override feature<https://docs.typo3.org/m/typo3/reference-tsconfig/12.4/en-us/PageTsconfig/Templates.html>`__
+
+
 
 Example
 ~~~~~~~~
@@ -247,5 +251,5 @@ To overwrite the partial for text-input, place a Partials into the directory:
 and define this in your TSConfig:
 
 .. code-block:: typoscript
-    templates.typo3_ext/lia_multicolumnwizard.1721919321 = my_vendor/my_extension_key:Resources/Private/Extensions/LiaMulticolumnWizard/Backend
+    templates.lia/lia_multicolumnwizard.1721919321 = my_vendor/my_extension_key:Resources/Private/Extensions/LiaMulticolumnWizard/Backend
 

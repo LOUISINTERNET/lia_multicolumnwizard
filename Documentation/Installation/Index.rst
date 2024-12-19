@@ -4,7 +4,7 @@
 Installation
 ============
 
-To install this extension just execute this composer command.
+Use the ``composer require`` command to install the extension:
 
 .. code-block:: bash
    composer require lia/lia_multicolumnwizard

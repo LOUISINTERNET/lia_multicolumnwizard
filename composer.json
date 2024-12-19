@@ -18,7 +18,9 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"typo3/cms-core": "^12.4",
+		"typo3/cms-core": "^12.4"
+	},
+	"require-dev": {
 		"typo3/coding-standards": "^0.8.0"
 	},
 	"autoload": {
@@ -32,8 +34,7 @@
 		}
 	},
 	"replace": {
-		"lia/lia-multicolumnwizard": "self.version",
-		"typo3-ter/lia-multicolumnwizard": "self.version"
+		"lia/lia-multicolumnwizard": "self.version"
 	},
 	"extra": {
 		"typo3/cms": {

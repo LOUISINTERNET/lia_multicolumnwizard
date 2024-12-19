@@ -3,7 +3,7 @@
 .. _start:
 
 ====================
-LiaMulticolumnwizard
+LiaMultiColumnWizard
 ====================
 
 :Extension key:
@@ -43,15 +43,15 @@ This extension adds an new TCA-Type that allows to group Fields into rows that c
 
     ..  card:: :ref:`Installation <Installation>`
 
-        A quick introduction in how to use this extension.
+        A quick introduction in how to install this extension.
 
-    ..  card:: :ref:`Configuration <configuration>`
+    ..  card:: :ref:`Configuration <configuration>` 
 
         How to configure the multicolumnwizard field.
 
     ..  card:: :ref:`ViewHelper <viewHelper>`
 
-        A documentation of provided ViewHelper and how to use them.
+        A documentation of provided ViewHelpers and how to use them.
 
 ----
 
