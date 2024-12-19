@@ -12,11 +12,11 @@
 	],
 	"support": {
 		"email": "info@dev.louis.info",
-		"source": "https://github.com/LouisInternet/lia_multicolumnwizard",
-		"docs": "https://github.com/LouisInternet/lia_multicolumnwizard/README.md",
-		"issues": "https://github.com/LouisInternet/lia_multicolumnwizard/issues"
+		"source": "https://github.com/LOUISINTERNET/lia_multicolumnwizard",
+		"docs": "https://github.com/LOUISINTERNET/lia_multicolumnwizard/README.md",
+		"issues": "https://github.com/LOUISINTERNET/lia_multicolumnwizard/issues"
 	},
-	"version": "1.0.0",
+	"license": "GPL-2.0-or-later",
 	"require": {
 		"typo3/cms-core": "^12.4",
 		"typo3/coding-standards": "^0.8.0"

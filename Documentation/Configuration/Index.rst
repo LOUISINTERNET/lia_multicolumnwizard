@@ -10,14 +10,13 @@ Here you can see a configuration with all the options for configuring the column
 
 Implementation on parent elements
 ------------------------------------
-you can use the option 'showLabelAboveField' => TRUE, if this is set the label will be shown in all rows above the field
 
 .. code-block:: php
     :caption: TCA field Configuration
 
     'fieldname' => [
         'exclude' => 1,
-        'label' => 'TestField',
+        'label' => 'MulticolumnField',
         'config' => [
             'type' => 'user',
             'renderType' => 'multiColumnWizard',
@@ -26,6 +25,7 @@ you can use the option 'showLabelAboveField' => TRUE, if this is set the label w
                     'divClass' => 'col-sm-2',
                     'type' => 'text',
                     'label' => 'Textxfield'
+                    'showLabelAboveField' => true,
                 ],
                 'fieldName_2' => [
                     'divClass' => 'col-sm-2',
@@ -33,6 +33,7 @@ you can use the option 'showLabelAboveField' => TRUE, if this is set the label w
                     'label' => 'Textarea',
                     'cols' => 40,
                     'rows' => 5
+                    'showLabelAboveField' => true,
                 ],
                 'fieldName_3' => [
                     'divClass' => 'col-sm-2',
@@ -155,6 +156,8 @@ In order to use the link feature you need to also create a field of type link in
 Implementation on child elements
 --------------------------------
 
+you can use the option `'showLabelAboveField' => true`, if this is set the label will be shown in all rows above the field
+
 .. code-block:: php
     :caption:
 
@@ -163,11 +166,13 @@ Implementation on child elements
             'divClass' => 'col-sm-2',
             'type' => 'text',
             'label' => 'Textxfield'
+            'showLabelAboveField' => true,
         ],
         'fieldName_2' => [
             'divClass' => 'col-sm-2',
             'type' => 'textarea',
             'label' => 'Textarea',
+            'showLabelAboveField' => true,
             'cols' => 40,
             'rows' => 5
         ],
@@ -227,18 +232,20 @@ Implementation on child elements
 
     $overrideChildTca['types'][1]['showitem'] = '... ,tx_lia_multicolumnwizard, fieldname_hidden_link_field, ...';
 
-Override Backend-Tempalte Paths
+Override Backend-Template Paths
 -------------------------------
 
-All Backendtemplates can be overriden using the 'general backend template override feature':
-https://docs.typo3.org/m/typo3/reference-tsconfig/12.4/en-us/PageTsconfig/Templates.html
+Backendtemplates can be overriden using the `general backend template override feature<https://docs.typo3.org/m/typo3/reference-tsconfig/12.4/en-us/PageTsconfig/Templates.html>`__
 
-Excample
+Example
 ~~~~~~~~
 
 To overwrite the partial for text-input, place a Partials into the directory:
-    `extensions/my_extension_key/Resources/Private/Backend/Partials/Fields/text.html`
+
+`extensions/my_extension_key/Resources/Private/Backend/Partials/Fields/text.html`
 
 and define this in your TSConfig:
-    :typoscript:`templates.typo3_ext/lia_multicolumnwizard.1721919321 = my_vendor/my_extension_key:Resources/Private/Extensions/LiaMulticolumnWizard/Backend`
+
+.. code-block:: typoscript
+    templates.typo3_ext/lia_multicolumnwizard.1721919321 = my_vendor/my_extension_key:Resources/Private/Extensions/LiaMulticolumnWizard/Backend
 

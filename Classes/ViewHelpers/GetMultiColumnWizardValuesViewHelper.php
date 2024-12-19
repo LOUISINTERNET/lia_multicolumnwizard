@@ -32,9 +32,9 @@ class GetMultiColumnWizardValuesViewHelper extends AbstractViewHelper
     /**
      * Render
      *
-     * @return array
+     * @return ?array
      */
-    public function render(): array
+    public function render(): ?array
     {
         if ($this->arguments['json'] == '') {
             return null;
