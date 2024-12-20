@@ -34,12 +34,12 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
  *      'field3' => 'value',
  *    }
  * 
- * So it can be used like: 
+ * So it can be used like:
  * 
  * .. code-block:: html
  *    <span>{mcwArray.field1}</span>
  *
- * Depending on the current value of `{data.multicolumnwizard}`.
+ * Depending on the current value of `{data.multicolumnwizard}` and the `associative` argument.
  */
 final class GetMultiColumnWizardValuesViewHelper extends AbstractViewHelper
 {

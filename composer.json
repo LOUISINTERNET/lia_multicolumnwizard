@@ -50,10 +50,7 @@
 	},
 	"scripts": {
 		"viewhelper-docs": [
-			"vendor/bin/fluidDocumentation generate viewhelpers_config.json",
-			"rm -rf Documentation/ViewHelper/* > /dev/null",
-			"mkdir Documentation/ViewHelper/ > /dev/null || exit 0",
-			"mv fluidDocumentationOutput/* Documentation/ViewHelper/"
+			"FLUID_DOCUMENTATION_OUTPUT_DIR=Documentation/ViewHelper vendor/bin/fluidDocumentation generate viewhelpers_config.json"
 		],
 		"build-docs": [
 			"docker run --rm --pull always -v $(pwd):/project -it ghcr.io/typo3-documentation/render-guides:latest --config=Documentation"

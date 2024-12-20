@@ -90,6 +90,54 @@ Implementation on parent elements
         ]
     ];
 
+Set up the DatabaseFileds in your database tables:
+
+.. code-block:: sql
+    :caption: EXT:/your_extension/ext_tables.sql
+
+    CREATE TABLE tx_yourextension_domain_model_item (
+        multicolumnwizard mediumtext,
+    );
+
+and expand your model with variable, getter and setters:
+
+.. code-block:: php
+    :caption: EXT:/your_extension/Domain/Model/Itenm.php 
+
+    /**
+    * multicolumnwizard
+    *
+    * @var string
+    */
+    protected string $multicolumnwizard = '';
+
+    [...]
+
+    /**
+    * Returns the multicolumnwizard list (as json)
+    *
+    * @return string
+    */
+    public function getMulticolumnwizard(): string
+    {
+        return $this->multicolumnwizard;
+    }
+
+    /**
+    * Sets the multicolumnwizard
+    *
+    * @param string $multicolumnwizard
+    * @return void
+    */
+    public function setMulticolumnwizard(string $multicolumnwizard): void
+    {
+        $this->multicolumnwizard = $multicolumnwizard;
+    }
+
+
+
+
+
 IconFactory
 ~~~~~~~~~~~
 This factory creates an icon selection from the icons in the JSON file.
