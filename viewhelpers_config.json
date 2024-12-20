@@ -1,0 +1,6 @@
+{
+    "name": "LiaMultiColumnWizard",
+    "label": "MultiColumnWizard",
+    "namespaceAlias": "mwc",
+    "targetNamespace": "http://typo3.org/ns/LIA/LiaMulticolumnwizard/ViewHelpers"
+}

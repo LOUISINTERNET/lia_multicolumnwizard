@@ -5,20 +5,19 @@
         default-code-language="php"
 >
     <extension class="\T3Docs\Typo3DocsTheme\DependencyInjection\Typo3DocsThemeExtension"
-               project-home="https://extensions.typo3.org/extension/news/"
-               project-contact="https://typo3.slack.com/archives/C03TG7QJT"
-               project-repository="https://github.com/LouisInternet/lia_multicolumnwizard"
-               project-issues="https://github.com/LouisInternet/lia_multicolumnwizard/issues"
-               project-discussions="https://github.com/LouisInternet/lia_multicolumnwizard/discussions"
+               project-home="https://extensions.typo3.org/extension/lia_multicolumnwizard/"
+               project-contact="mailto:devs@louis.info"
+               project-repository="https://github.com/LOUISINTERNET/lia_multicolumnwizard"
+               project-issues="https://github.com/LOUISINTERNET/lia_multicolumnwizard/issues"
+               report-issue="https://github.com/LOUISINTERNET/lia_multicolumnwizard/issues/new"
                edit-on-github-branch="main"
-               edit-on-github="lia/lia_multicolumnwizard"
+               edit-on-github="LOUISINTERNET/lia_multicolumnwizard"
                typo3-core-preferred="12.4"
                interlink-shortcode="lia/lia_multicolumnwizard"
     />
     <project title="LIA Multicolumnwizard"
              version="local"
-             copyright="since 2010 by Georg Ringer &amp; Contributors"
+             copyright="since 2021 by LOUIS Internet"
     />
-    <inventory id="t3extbasebook" url="https://docs.typo3.org/m/typo3/book-extbasefluid/10.4/en-us/"/>
 </guides>
 

@@ -1,7 +1,7 @@
 {
 	"name": "lia/lia_multicolumnwizard",
 	"type": "typo3-cms-extension",
-	"description": "",
+	"description": "This extension adds an new TCA-Type that allows to group Fields into rows that can be multiplied.",
 	"authors": [
 		{
 			"name": "LOUIS TYPO3 Developers",
@@ -21,7 +21,8 @@
 		"typo3/cms-core": "^12.4"
 	},
 	"require-dev": {
-		"typo3/coding-standards": "^0.8.0"
+		"typo3/coding-standards": "^0.8.0",
+		"t3docs/fluid-documentation-generator": "^4.4"
 	},
 	"autoload": {
 		"psr-4": {
@@ -46,5 +47,20 @@
 			"typo3/cms-composer-installers": true,
 			"typo3/class-alias-loader": true
 		}
+	},
+	"scripts": {
+		"viewhelper-docs": [
+			"vendor/bin/fluidDocumentation generate viewhelpers_config.json",
+			"rm -rf Documentation/ViewHelper/* > /dev/null",
+			"mkdir Documentation/ViewHelper/ > /dev/null || exit 0",
+			"mv fluidDocumentationOutput/* Documentation/ViewHelper/"
+		],
+		"build-docs": [
+			"docker run --rm --pull always -v $(pwd):/project -it ghcr.io/typo3-documentation/render-guides:latest --config=Documentation"
+		],
+		"build-full-doc": [
+			"@viewhelper-docs",
+			"@build-docs"
+		]
 	}
 }

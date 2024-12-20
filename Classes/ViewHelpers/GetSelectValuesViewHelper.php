@@ -12,7 +12,9 @@ namespace LIA\LiaMulticolumnwizard\ViewHelpers;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
- * GetMultiColumnWizardValues ViewHelper
+ * This ViewHelper call a function with given parameter.
+ *
+ * 
  */
 class GetSelectValuesViewHelper extends AbstractViewHelper
 {
@@ -25,8 +27,8 @@ class GetSelectValuesViewHelper extends AbstractViewHelper
      */
     public function initializeArguments()
     {
-        $this->registerArgument('configuration', 'string', 'Json');
-        $this->registerArgument('optionsFunction', 'string', 'Json');
+        $this->registerArgument('configuration', 'string', 'The json string of the MultiColumnWizard field.');
+        $this->registerArgument('optionsFunction', 'string', 'This array has to contain the full classname, the method to call and all the parameter that are needed to call this method.');
     }
 
     /**
@@ -41,7 +43,6 @@ class GetSelectValuesViewHelper extends AbstractViewHelper
                 return $this->arguments['configuration'];
             }
             return [];
-
         }
 
         [$className, $methodName, $params] = $this->arguments['optionsFunction'];

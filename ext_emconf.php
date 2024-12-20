@@ -2,7 +2,7 @@
 
 $EM_CONF[$_EXTKEY] = [
     'title' => 'LIA MultiColumnWizard',
-    'description' => '',
+    'description' => 'This extension adds an new TCA-Type that allows to group Fields into rows that can be multiplied.',
     'category' => 'plugin',
     'author' => 'LOUIS TYPO3 Developers',
     'author_email' => 'info@dev.louis.info',

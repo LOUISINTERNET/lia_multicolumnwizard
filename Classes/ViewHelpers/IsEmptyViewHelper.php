@@ -12,23 +12,27 @@ namespace LIA\LiaMulticolumnwizard\ViewHelpers;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
- * Check if the given MulticolumnWizard JSON string is emtpy.
+ * Check if the given MultiColumnWizard field has any values.
+ * Checks every filed in every row and returns true if every value is empty.
  *
- * HOW TO USE:
+ * Examples
+ * ========
  *
- * <f:if condition="!{mcw:isEmpty(json: data.tx_lia_multicolumnwizard)}"> ... YOUR CODE ... </f:if>
+ * Usage in a condition like this: 
+ * 
+ * .. code-block:: html
+ * 
+ *   <f:if condition="!{mcw:isEmpty(json: data.multicolumnwizard)}"> ... YOUR CODE ... </f:if>
  *
- * @authro Johannes Delesky, Louis INTERNET <delesky@louis.info>
- * @extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper
  */
 class IsEmptyViewHelper extends AbstractViewHelper
 {
     /**
      * Initialize ViewHelper Arguments.
      */
-    public function initializeArguments()
+    public function initializeArguments(): void   
     {
-        $this->registerArgument('json', 'string', 'The multicolumn wizard json string.', true);
+        $this->registerArgument('json', 'string', 'The MultiColumnWizard-json string.', true);
     }
 
     /**
@@ -51,10 +55,6 @@ class IsEmptyViewHelper extends AbstractViewHelper
             fn($arr) => !empty($arr)
         );
 
-        if (empty($mcwArray)) {
-            return true;
-        }
-
-        return false;
+        return empty($mcwArray);
     }
 }
