@@ -30,7 +30,7 @@ LiaMultiColumnWizard
 
 ----
 
-This extension adds an new TCA-Type that allows to group Fields into rows that can be multiplied.
+This extension adds an new TCA-Type that allows to group fields into rows that can be multiplied.
 
 ----
 

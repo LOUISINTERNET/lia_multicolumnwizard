@@ -1,7 +1,7 @@
 {
 	"name": "lia/lia_multicolumnwizard",
 	"type": "typo3-cms-extension",
-	"description": "This extension adds an new TCA-Type that allows to group Fields into rows that can be multiplied.",
+	"description": "This extension adds an new TCA-Type that allows to group fields into rows that can be multiplied.",
 	"authors": [
 		{
 			"name": "LOUIS TYPO3 Developers",
