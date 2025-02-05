@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
 * This file is part of the "lia_multicolumnwizard" Extension for TYPO3 CMS.
 *
@@ -48,7 +50,13 @@ final class GetMultiColumnWizardValuesViewHelper extends AbstractViewHelper
     /*########################*/
 
     /**
-     * Initialize arguments
+     * Initialize the ViewHelper arguments.
+     *
+     * Registers two arguments:
+     *  - 'json': A JSON string to decode.
+     *  - 'associative': A boolean flag to return the decoded JSON as an associative array (default: false).
+     *
+     * @return void
      */
     public function initializeArguments()
     {
@@ -57,15 +65,28 @@ final class GetMultiColumnWizardValuesViewHelper extends AbstractViewHelper
     }
 
     /**
-     * Render
+     * Decodes the provided JSON string.
      *
-     * @return ?array
+     * If the JSON string is valid, it returns the decoded data either as an associative array or an object.
+     * If the JSON string is empty or invalid, it returns null.
+     *
+     * @return array|null The decoded JSON data, or null if the JSON is empty or invalid.
      */
     public function render(): ?array
     {
-        if ($this->arguments['json'] == '') {
+        $json = $this->arguments['json'] ?? '';
+        $associative = (bool)($this->arguments['associative'] ?? false);
+
+        if (empty($json)) {
             return null;
         }
-        return json_decode($this->arguments['json'], $this->arguments['associative']);
+
+        $decoded = json_decode($json, $associative);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return null;
+        }
+
+        return $decoded;
     }
 }

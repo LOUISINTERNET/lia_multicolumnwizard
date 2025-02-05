@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
 * This file is part of the "lia_multicolumnwizard" Extension for TYPO3 CMS.
 *
@@ -12,9 +14,14 @@ namespace LIA\LiaMulticolumnwizard\ViewHelpers;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
- * This ViewHelper call a function with given parameter.
+ * ViewHelper to retrieve select values from a MultiColumnWizard configuration or a callable function.
  *
- * 
+ * This ViewHelper can either return the configuration array directly or call a specified method
+ * to retrieve the select values dynamically.
+ *
+ * Example usage:
+ *
+ * <lia:getSelectValues configuration="{data.configuration}" optionsFunction="{data.function}" />
  */
 class GetSelectValuesViewHelper extends AbstractViewHelper
 {
@@ -23,7 +30,13 @@ class GetSelectValuesViewHelper extends AbstractViewHelper
     /*########################*/
 
     /**
-     * Initialize arguments
+     * Initialize the ViewHelper arguments.
+     *
+     * Registers two arguments:
+     *  - 'configuration': Either a JSON string or an array containing the select options.
+     *  - 'optionsFunction': A string representing a callable (class, method, params) to retrieve the options.
+     *
+     * @return void
      */
     public function initializeArguments()
     {
@@ -32,9 +45,12 @@ class GetSelectValuesViewHelper extends AbstractViewHelper
     }
 
     /**
-     * Render
+     * Returns select values either from the configuration or by calling a specified function.
      *
-     * @return array
+     * If 'optionsFunction' is empty, the 'configuration' argument is returned (if it's an array).
+     * If 'optionsFunction' is provided, it will be used to call a class method with parameters to get the select options.
+     *
+     * @return array The select values, either from the configuration or the result of the called function.
      */
     public function render(): array
     {

@@ -131,64 +131,106 @@ class Multicolumnwizard {
         });
 
         $(newRow).find('[data-linkusefield]').each(function(){
-            var $linkTextFieldFullUrl = $(this).closest('.formengine-field-item').find('input.input_name_full[data-ignore]');
-            var $linkTextFieldOriginalUrl = $(this).closest('.formengine-field-item').find('input.input_name_original[data-ignore]');
-            var $linkHiddenField = $(this).closest('.formengine-field-item').find('input.input_url_orignal');
+            var $linkTextField = $(this).closest('.formengine-field-item').find('input[data-ignore]');
             var fieldName = $(this).attr('data-fieldname');
+            var $linkHiddenField = $(this).closest('.form-control-wrap').find('input[type="text"][data-name]');
             var $linkIcon = $(this).closest('.form-control-wrap').find('.mwc-add-link-icon');
             var $linkEditLinkButton = $(this).closest('.form-control-wrap').find('.mwc-add-link-edit-link-button');
-            var $linkClearLinkButton = $(this).closest('.form-control-wrap').find('.mwc-add-link-icon-close');
-            $linkEditLinkButton.removeClass('disabled');
-            $linkEditLinkButton.removeAttr('disabled');
+            var $linkClearLinkButton = null;
             var $triggerLinkHiddenField = $('input[name $="[' + $(this).attr('data-linkusefield') + ']"]');
             var $triggerLinkInput = $('a[data-item-name$="[' + $(this).attr('data-linkusefield') + ']"]');
-            $triggerLinkHiddenField.closest('.form-section').hide();
 
             if(jsonLinkExplanation) {
                 if(jsonLinkExplanation[fieldName] && jsonLinkExplanation[fieldName]['text']) {
-                    $linkTextFieldFullUrl.val(jsonLinkExplanation[fieldName]['text']).attr({'title':jsonLinkExplanation[fieldName]['text']}).removeAttr('hidden');
-                    $linkTextFieldOriginalUrl.val($linkHiddenField.val()).attr('hidden','hidden');
+                    $linkTextField.val(jsonLinkExplanation[fieldName]['text']);
+                    $linkEditLinkButton.removeClass('disabled');
+                    $linkEditLinkButton.removeAttr('disabled');
+                    $linkTextField.attr('readonly','readonly');
+                } else {
+                    if($linkHiddenField.val() != '') {
+                        $linkTextField.val($linkHiddenField.val());
+                        $linkEditLinkButton.removeClass('disabled');
+                        $linkEditLinkButton.removeAttr('disabled');
+                        $linkTextField.attr('readonly','readonly');
+                    }
                 }
                 if(jsonLinkExplanation[fieldName] && jsonLinkExplanation[fieldName]['icon']) {
                     $linkIcon.html(jsonLinkExplanation[fieldName]['icon']);
                 }
             }
 
+            $triggerLinkInput.closest('.form-section').hide();
+            var _this = this;
+            $linkTextField.keyup(function(){
+                if(!$linkClearLinkButton) {
+                    $linkTextField.after($linkTextField.closest('.input-group').find('.mwc-close'));
+                    $linkClearLinkButton = $linkTextField.closest('.form-control-clearable-wrapper').find('.mwc-close');
+                    $linkClearLinkButton.css('display', 'inline-block');
+                    $linkClearLinkButton.click(function(e){
+                        e.preventDefault();
+                        $linkIcon.html('');
+                        $linkHiddenField.val('');
+                        $linkTextField.val('');
+                        $linkTextField.removeAttr('readonly');
+                        $linkClearLinkButton.css('visibility', 'hidden');
+                        //$(this).closest('.form-control-wrap').addClass('has-change');
+                        multicolumnwizard.setJsonData(mcw);
+                    });
+                }
+                $linkClearLinkButton.css('visibility', 'visible');
+                $linkHiddenField.val($(this).val());
+                //$(this).closest('.form-control-wrap').addClass('has-change');
+                multicolumnwizard.setJsonData(mcw);
+            });
+
             $linkEditLinkButton.click(function(e){
                 e.preventDefault();
-                $linkTextFieldFullUrl.attr('hidden','hidden');
-                $linkTextFieldOriginalUrl.removeAttr('hidden');
+                $linkTextField.removeAttr('readonly');
+                if(!$linkClearLinkButton) {
+                    $linkTextField.after($linkTextField.closest('.input-group').find('.mwc-close'));
+                    $linkClearLinkButton = $linkTextField.closest('.form-control-clearable-wrapper').find('.mwc-close');
+                    $linkClearLinkButton.css('display', 'inline-block');
+                    $linkClearLinkButton.click(function(e){
+                        e.preventDefault();
+                        $linkIcon.html('');
+                        $linkHiddenField.val('');
+                        $linkTextField.val('');
+                        $linkTextField.removeAttr('readonly');
+                        $linkClearLinkButton.css('visibility', 'hidden');
+                        //$(this).closest('.form-control-wrap').addClass('has-change');
+                        multicolumnwizard.setJsonData(mcw);
+                    });
+                }
                 $linkClearLinkButton.css('visibility', 'visible');
             });
-            $linkClearLinkButton.click(function(e){
-                e.preventDefault();
-                $linkIcon.html('');
-                $linkHiddenField.val('');
-                $linkTextFieldOriginalUrl.val('');
-                $linkClearLinkButton.css('visibility', 'hidden');
-                multicolumnwizard.setJsonData(mcw);
-            });
-
-            $linkTextFieldOriginalUrl.keyup(function(){
-                $linkClearLinkButton.css('visibility', 'visible');
-                $linkHiddenField.val($linkTextField.val());
-                multicolumnwizard.setJsonData(mcw);
-            });
-
             $(this).click(function(e){
                 e.preventDefault();
                 $triggerLinkHiddenField.val($linkHiddenField.val());
                 $triggerLinkHiddenField.off('change');
                 $triggerLinkHiddenField.on('change', function() {
-                    $linkTextFieldFullUrl.attr('hidden','hidden');
-                    $linkTextFieldOriginalUrl.removeAttr('hidden');
-                    $linkClearLinkButton.css('visibility', 'visible');
                     $linkHiddenField.val($triggerLinkHiddenField.val());
                     $linkEditLinkButton.addClass('disabled');
                     $linkEditLinkButton.attr('disabled','disabled');
                     $linkIcon.html('');
-                    $linkTextFieldOriginalUrl.val($triggerLinkHiddenField.val());
+                    //$linkTextField.val($triggerLinkHiddenField.val()).addClass('has-change');
+                    if(!$linkClearLinkButton) {
+                        $linkTextField.after($linkTextField.closest('.input-group').find('.mwc-close'));
+                        $linkClearLinkButton = $linkTextField.closest('.form-control-clearable-wrapper').find('.mwc-close');
+                        $linkClearLinkButton.css('display', 'inline-block');
+                        $linkClearLinkButton.click(function(e){
+                            e.preventDefault();
+                            $linkIcon.html('');
+                            $linkHiddenField.val('');
+                            $linkTextField.val('');
+                            $linkTextField.removeAttr('readonly');
+                            $linkClearLinkButton.css('visibility', 'hidden');
+                            //$(this).closest('.form-control-wrap').addClass('has-change');
+                            multicolumnwizard.setJsonData(mcw);
+                        });
+                    }
+                    //$(this).closest('.form-control-wrap').addClass('has-change');
                     $linkClearLinkButton.css('visibility', 'visible');
+                    $linkTextField.removeAttr('readonly');
                     $triggerLinkHiddenField.off('change');
                     $triggerLinkHiddenField.val('');
                     multicolumnwizard.setJsonData(mcw);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
 * This file is part of the "lia_multicolumnwizard" Extension for TYPO3 CMS.
 *
@@ -13,7 +15,8 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Backend\Form\Element\AbstractFormElement;
 use TYPO3\CMS\Backend\Form\Event\ModifyLinkExplanationEvent;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\LinkHandling\Exception\UnknownLinkHandlerException;
 use TYPO3\CMS\Core\LinkHandling\LinkService;
 use TYPO3\CMS\Core\LinkHandling\TypoLinkCodecService;
@@ -27,66 +30,70 @@ use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Service\DependencyOrderingService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
+use TYPO3\CMS\Core\View\ViewFactoryInterface;
+use TYPO3\CMS\Core\View\ViewInterface;
+use TYPO3\CMS\Core\View\ViewFactoryData;
 
 /**
- * MultiColumnWizard
+ * This class defines the MultiColumnWizard for rendering and managing form elements with multiple columns.
  */
 class MultiColumnWizard extends AbstractFormElement
 {
-    /**
-     * @var StandaloneView $standaloneView
-     */
-    private $standaloneView;
-
     /*########################*/
     /*####PUBLIC FUNCTIONS####*/
     /*########################*/
 
+    public function __construct(
+        private ViewFactoryInterface $viewFactory,
+        private IconFactory $iconFactory,
+    ) {}
+
     /**
-     * Handler for single nodes
+     * Renders the form element and returns the result array.
      *
-     * @return array As defined in initializeResultArray() of AbstractNode
+     * Gets a view and sets the template, saved values, and link explanations
+     * to be rendered as part of the form element. This method also loads necessary stylesheets
+     * and JavaScript modules for the MultiColumnWizard.
+     *
+     * @return array The rendered form element in array format.
      */
     public function render(): array
     {
         $resultArray = $this->initializeResultArray();
-        $this->initStandaloneView();
-        $this->standaloneView->setTemplate('Multicolumnwizard');
+        $view = $this->createCustomView();
+
         $savedValues = json_decode($this->data['parameterArray']['itemFormElValue'], true);
-        $linkFields = [];
-        foreach ($this->data['parameterArray']['fieldConf']['config']['columnFields'] as $columnName => $columnField) {
-            if ($columnField['type'] == 'link') {
-                $linkFields[$columnName] = $columnName;
-            }
-        }
-        $linkExplanations = [];
-        if ($savedValues && $linkFields) {
-            foreach ($savedValues as $key => $value) {
-                foreach ($linkFields as $linkField) {
-                    if ($value[$linkField]) {
-                        $linkExplanations[$key][$linkField] = $this->getLinkExplanation((string)$value[$linkField]);
-                    }
-                }
-            }
-        }
-        $this->standaloneView->assignMultiple([
+
+        $linkFields = $this->getLinkFields();
+        $linkExplanations = $this->getLinkExplanations($savedValues, $linkFields);
+
+        $view->assignMultiple([
             'data' => $this->data,
             'linkExplanation' => json_encode($linkExplanations),
         ]);
 
-        $resultArray['html'] = $this->standaloneView->render();
-
+        $resultArray['html'] = $view->render();
         $resultArray['stylesheetFiles'][] = 'EXT:lia_multicolumnwizard/Resources/Public/Stylesheets/Multicolumnwizard.css';
-
         $resultArray['javaScriptModules'][] = JavaScriptModuleInstruction::create('@lia_multicolumnwizard/backend/Multicolumnwizard.js');
+
         return $resultArray;
     }
 
+    /*#######################*/
+    /*###PRIVATE FUNCTIONS###*/
+    /*#######################*/
+
     /**
-     * @return array
+     * Retrieves an explanation for a link based on the provided item value.
+     *
+     * This method decodes the link, resolves its target, and formats the result to
+     * include any additional attributes. It handles exceptions and returns a default
+     * structure if the link is invalid or cannot be resolved.
+     *
+     * @param string $itemValue The item value (link) to be explained.
+     * @return array The explanation of the link.
      */
-    protected function getLinkExplanation(string $itemValue): array
+    private function getLinkExplanation(string $itemValue): array
     {
         if ($itemValue === '') {
             return [];
@@ -99,16 +106,16 @@ class MultiColumnWizard extends AbstractFormElement
 
         try {
             $linkData = $linkService->resolve($linkParts['url']);
-        } catch (FileDoesNotExistException|FolderDoesNotExistException|UnknownLinkHandlerException|InvalidPathException $e) {
+        } catch (FileDoesNotExistException | FolderDoesNotExistException | UnknownLinkHandlerException | InvalidPathException $e) {
             return $data;
         }
 
-        // Resolving the TypoLink parts (class, title, params)
         $additionalAttributes = [];
         foreach ($linkParts as $key => $value) {
             if ($key === 'url') {
                 continue;
             }
+
             if ($value) {
                 $label = match ((string)$key) {
                     'class' => $this->getLanguageService()->sL('LLL:EXT:backend/Resources/Private/Language/locallang_browse_links.xlf:class'),
@@ -116,101 +123,22 @@ class MultiColumnWizard extends AbstractFormElement
                     'additionalParams' => $this->getLanguageService()->sL('LLL:EXT:backend/Resources/Private/Language/locallang_browse_links.xlf:params'),
                     default => (string)$key
                 };
+
                 $additionalAttributes[] = '<span><strong>' . htmlspecialchars($label) . ': </strong> ' . htmlspecialchars($value) . '</span>';
             }
         }
 
-        // Resolve the actual link
-        switch ($linkData['type']) {
-            case LinkService::TYPE_PAGE:
-                $pageRecord = BackendUtility::readPageAccess($linkData['pageuid'] ?? null, '1=1');
-                // Is this a real page
-                if ($pageRecord['uid'] ?? 0) {
-                    $fragmentTitle = '';
-                    if (isset($linkData['fragment'])) {
-                        if (MathUtility::canBeInterpretedAsInteger($linkData['fragment'])) {
-                            $contentElement = BackendUtility::getRecord('tt_content', (int)$linkData['fragment'], '*', 'pid=' . $pageRecord['uid']);
-                            if ($contentElement) {
-                                $fragmentTitle = BackendUtility::getRecordTitle('tt_content', $contentElement, false, false);
-                            }
-                        }
-                        $fragmentTitle = ' #' . ($fragmentTitle ?: $linkData['fragment']);
-                    }
-                    $data = [
-                        'text' => $pageRecord['_thePathFull'] . '[' . $pageRecord['uid'] . ']' . $fragmentTitle,
-                        'icon' => $this->iconFactory->getIconForRecord('pages', $pageRecord, Icon::SIZE_SMALL)->render(),
-                    ];
-                }
-                break;
-            case LinkService::TYPE_EMAIL:
-                $data = [
-                    'text' => $linkData['email'] ?? '',
-                    'icon' => $this->iconFactory->getIcon('content-elements-mailform', Icon::SIZE_SMALL)->render(),
-                ];
-                break;
-            case LinkService::TYPE_URL:
-                $data = [
-                    'text' => $linkData['url'] ?? '',
-                    'icon' => $this->iconFactory->getIcon('apps-pagetree-page-shortcut-external', Icon::SIZE_SMALL)->render(),
-
-                ];
-                break;
-            case LinkService::TYPE_FILE:
-                $file = $linkData['file'] ?? null;
-                if ($file instanceof File) {
-                    $data = [
-                        'text' => $file->getPublicUrl(),
-                        'icon' => $this->iconFactory->getIconForFileExtension($file->getExtension(), Icon::SIZE_SMALL)->render(),
-                    ];
-                }
-                break;
-            case LinkService::TYPE_FOLDER:
-                $folder = $linkData['folder'] ?? null;
-                if ($folder instanceof Folder) {
-                    $data = [
-                        'text' => $folder->getPublicUrl(),
-                        'icon' => $this->iconFactory->getIcon('apps-filetree-folder-default', Icon::SIZE_SMALL)->render(),
-                    ];
-                }
-                break;
-            case LinkService::TYPE_RECORD:
-                $table = $this->data['pageTsConfig']['TCEMAIN.']['linkHandler.'][$linkData['identifier'] . '.']['configuration.']['table'] ?? '';
-                $record = BackendUtility::getRecord($table, $linkData['uid']);
-                if ($record) {
-                    $recordTitle = BackendUtility::getRecordTitle($table, $record);
-                    $tableTitle = $this->getLanguageService()->sL($GLOBALS['TCA'][$table]['ctrl']['title']);
-                    $data = [
-                        'text' => sprintf('%s [%s:%d]', $recordTitle, $tableTitle, $linkData['uid']),
-                        'icon' => $this->iconFactory->getIconForRecord($table, $record, Icon::SIZE_SMALL)->render(),
-                    ];
-                } else {
-                    $data = [
-                        'text' => sprintf('%s', $linkData['uid']),
-                        'icon' => $this->iconFactory->getIcon('tcarecords-' . $table . '-default', Icon::SIZE_SMALL, 'overlay-missing')->render(),
-                    ];
-                }
-                break;
-            case LinkService::TYPE_TELEPHONE:
-                $telephone = $linkData['telephone'];
-                if ($telephone) {
-                    $data = [
-                        'text' => $telephone,
-                        'icon' => $this->iconFactory->getIcon('actions-device-mobile', Icon::SIZE_SMALL)->render(),
-                    ];
-                }
-                break;
-            case LinkService::TYPE_UNKNOWN:
-                $data = [
-                    'text' => $linkData['file'] ?? $linkData['url'] ?? '',
-                    'icon' => $this->iconFactory->getIcon('actions-link', Icon::SIZE_SMALL)->render(),
-                ];
-                break;
-            default:
-                $data = [
-                    'text' => 'not implemented type ' . $linkData['type'],
-                    'icon' => '',
-                ];
-        }
+        $data = match ($linkData['type']) {
+            LinkService::TYPE_PAGE => $this->getPageLinkData($linkData),
+            LinkService::TYPE_EMAIL => $this->getEmailLinkData($linkData),
+            LinkService::TYPE_URL => $this->getUrlLinkData($linkData),
+            LinkService::TYPE_FILE => $this->getFileLinkData($linkData),
+            LinkService::TYPE_FOLDER => $this->getFolderLinkData($linkData),
+            LinkService::TYPE_RECORD => $this->getRecordLinkData($linkData),
+            LinkService::TYPE_TELEPHONE => $this->getTelephoneLinkData($linkData),
+            LinkService::TYPE_UNKNOWN => $this->getUnknownLinkData($linkData),
+            default => $this->getDefaultLinkData($linkData),
+        };
 
         $data['additionalAttributes'] = '<div class="form-text">' . implode(' - ', $additionalAttributes) . '</div>';
 
@@ -219,39 +147,280 @@ class MultiColumnWizard extends AbstractFormElement
         )->getLinkExplanation();
     }
 
-    /*#######################*/
-    /*###PRIVATE FUNCTIONS###*/
-    /*#######################*/
-
     /**
-     * Initialize a StandaloneView Object
+     * Sets up a ViewFactory and create a View
+     *
+     * This method sets up the template and partial root paths required for rendering
+     * the MultiColumnWizard.
+     *
+     * @return ViewInterface
      */
-    private function initStandaloneView(): void
+    private function createCustomView(): ViewInterface
     {
         $templatePaths = [
             'templateRootPaths' => [
-                GeneralUtility::getFileAbsFileName('EXT:lia_multicolumnwizard/Resources/Private/Backend/Templates'),
+                'EXT:lia_multicolumnwizard/Resources/Private/Backend/Templates'
             ],
             'partialRootPaths' => [
-                GeneralUtility::getFileAbsFileName('EXT:lia_multicolumnwizard/Resources/Private/Backend/Partials'),
-            ],
+                'EXT:lia_multicolumnwizard/Resources/Private/Backend/Partials'
+            ]
         ];
         $templatePaths = $this->appendTemplateOverridesFromPagets($this->data['pageTsConfig'], $templatePaths);
 
-        $this->standaloneView = GeneralUtility::makeInstance(StandaloneView::class);
-        $this->standaloneView->setTemplateRootPaths($templatePaths['templateRootPaths']);
-        $this->standaloneView->setPartialRootPaths($templatePaths['partialRootPaths']);
-        $this->standaloneView->setFormat('html');
+        $viewFactoryData = new ViewFactoryData(
+            templateRootPaths: $templatePaths['templateRootPaths'],
+            partialRootPaths: $templatePaths['partialRootPaths'],
+            layoutRootPaths: ['EXT:lia_multicolumnwizard/Resources/Private/Backend/Layouts'],
+        );
+
+        $view = $this->viewFactory->create($viewFactoryData);
+        return $view;
     }
 
     /**
-     * Append Template Overrides from PageTS (if any)
+     * Retrieves the list of link fields defined in the column configuration.
      *
-     * @param array $pageTs
-     * @param array $templatePaths
-     * @throws \RuntimeException
+     * @return array An array of link field names.
+     */
+    private function getLinkFields(): array
+    {
+        $linkFields = [];
+        foreach ($this->data['parameterArray']['fieldConf']['config']['columnFields'] as $columnName => $columnField) {
+            if ($columnField['type'] == 'link') {
+                $linkFields[$columnName] = $columnName;
+            }
+        }
+        return $linkFields;
+    }
+
+    /**
+     * Retrieves link explanations for the saved values.
      *
-     * @return array
+     * @param ?array $savedValues The saved values.
+     * @param ?array $linkFields The link fields.
+     *
+     * @return array The link explanations.
+     */
+    private function getLinkExplanations(?array $savedValues, ?array $linkFields): array
+    {
+        $linkExplanations = [];
+        if ($savedValues && $linkFields) {
+            foreach ($savedValues as $key => $value) {
+                foreach ($linkFields as $linkField) {
+                    if ($value[$linkField]) {
+                        $linkExplanations[$key][$linkField] = $this->getLinkExplanation((string)$value[$linkField]);
+                    }
+                }
+            }
+        }
+        return $linkExplanations;
+    }
+
+    /**
+     * Retrieves data for a page link.
+     *
+     * This method returns the text and icon for a page link, including fragment titles if available.
+     *
+     * @param array $linkData The resolved link data.
+     *
+     * @return array The text and icon for the page link.
+     */
+    private function getPageLinkData(array $linkData): array
+    {
+        $pageRecord = BackendUtility::readPageAccess($linkData['pageuid'] ?? null, '1=1');
+        $data = [];
+
+        if ($pageRecord['uid'] ?? 0) {
+            $fragmentTitle = '';
+            if (isset($linkData['fragment'])) {
+                if (MathUtility::canBeInterpretedAsInteger($linkData['fragment'])) {
+                    $contentElement = BackendUtility::getRecord('tt_content', (int)$linkData['fragment'], '*', 'pid=' . $pageRecord['uid']);
+                    if ($contentElement) {
+                        $fragmentTitle = BackendUtility::getRecordTitle('tt_content', $contentElement, false, false);
+                    }
+                }
+                $fragmentTitle = ' #' . ($fragmentTitle ?: $linkData['fragment']);
+            }
+            $data = [
+                'text' => $pageRecord['_thePathFull'] . '[' . $pageRecord['uid'] . ']' . $fragmentTitle,
+                'icon' => $this->iconFactory->getIconForRecord('pages', $pageRecord, IconSize::SMALL)->render(),
+            ];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Retrieves data for an email link.
+     *
+     * @param array $linkData The resolved link data.
+     *
+     * @return array The text and icon for the email link.
+     */
+    private function getEmailLinkData(array $linkData): array
+    {
+        $data = [
+            'text' => $linkData['email'] ?? '',
+            'icon' => $this->iconFactory->getIcon('content-elements-mailform', IconSize::SMALL)->render(),
+        ];
+        return $data;
+    }
+
+    /**
+     * Retrieves data for a URL link.
+     *
+     * @param array $linkData The resolved link data.
+     *
+     * @return array The text and icon for the URL link.
+     */
+    private function getUrlLinkData(array $linkData): array
+    {
+        $data = [
+            'text' => $linkData['url'] ?? '',
+            'icon' => $this->iconFactory->getIcon('apps-pagetree-page-shortcut-external', IconSize::SMALL)->render(),
+
+        ];
+        return $data;
+    }
+
+    /**
+     * Retrieves data for a file link.
+     *
+     * @param array $linkData The resolved link data.
+     *
+     * @return array The text and icon for the file link.
+     */
+    private function getFileLinkData(array $linkData): array
+    {
+        $file = $linkData['file'] ?? null;
+        $data = [];
+
+        if ($file instanceof File) {
+            $data = [
+                'text' => $file->getPublicUrl(),
+                'icon' => $this->iconFactory->getIconForFileExtension($file->getExtension(), IconSize::SMALL)->render(),
+            ];
+        }
+        return $data;
+    }
+
+    /**
+     * Retrieves data for a folder link.
+     *
+     * @param array $linkData The resolved link data.
+     *
+     * @return array The text and icon for the folder link.
+     */
+    private function getFolderLinkData(array $linkData): array
+    {
+        $folder = $linkData['folder'] ?? null;
+        $data = [];
+
+        if ($folder instanceof Folder) {
+            $data = [
+                'text' => $folder->getPublicUrl(),
+                'icon' => $this->iconFactory->getIcon('apps-filetree-folder-default', IconSize::SMALL)->render(),
+            ];
+        }
+        return $data;
+    }
+
+    /**
+     * Retrieves data for a record link.
+     *
+     * @param array $linkData The resolved link data.
+     *
+     * @return array The text and icon for the record link.
+     */
+    private function getRecordLinkData(array $linkData): array
+    {
+        $table = $this->data['pageTsConfig']['TCEMAIN.']['linkHandler.'][$linkData['identifier'] . '.']['configuration.']['table'] ?? '';
+        $record = BackendUtility::getRecord($table, $linkData['uid']);
+        $data = [];
+
+        if ($record) {
+            $recordTitle = BackendUtility::getRecordTitle($table, $record);
+            $tableTitle = $this->getLanguageService()->sL($GLOBALS['TCA'][$table]['ctrl']['title']);
+            $data = [
+                'text' => sprintf('%s [%s:%d]', $recordTitle, $tableTitle, $linkData['uid']),
+                'icon' => $this->iconFactory->getIconForRecord($table, $record, IconSize::SMALL)->render(),
+            ];
+        } else {
+            $data = [
+                'text' => sprintf('%s', $linkData['uid']),
+                'icon' => $this->iconFactory->getIcon('tcarecords-' . $table . '-default', IconSize::SMALL, 'overlay-missing')->render(),
+            ];
+        }
+        return $data;
+    }
+
+    /**
+     * Retrieves data for a telephone link.
+     *
+     * @param array $linkData The resolved link data.
+     *
+     * @return array The text and icon for the telephone link.
+     */
+    private function getTelephoneLinkData(array $linkData): array
+    {
+        $telephone = $linkData['telephone'];
+        $data = [];
+
+        if ($telephone) {
+            $data = [
+                'text' => $telephone,
+                'icon' => $this->iconFactory->getIcon('actions-device-mobile', IconSize::SMALL)->render(),
+            ];
+        }
+        return $data;
+    }
+
+    /**
+     * Retrieves data for an unknown link type.
+     *
+     * @param array $linkData The resolved link data.
+     *
+     * @return array The text and icon for the unknown link type.
+     */
+    private function getUnknownLinkData(array $linkData): array
+    {
+        $data = [
+            'text' => $linkData['file'] ?? $linkData['url'] ?? '',
+            'icon' => $this->iconFactory->getIcon('actions-link', IconSize::SMALL)->render(),
+        ];
+        return $data;
+    }
+
+    /**
+     * Retrieves data for the default link type (not implemented).
+     *
+     * @param array $linkData The resolved link data.
+     *
+     * @return array The default link data indicating the type is not implemented.
+     */
+    private function getDefaultLinkData(array $linkData): array
+    {
+        $data = [
+            'text' => 'not implemented type ' . $linkData['type'],
+            'icon' => '',
+        ];
+        return $data;
+    }
+
+    /*#######################*/
+    /*##PROTECTED FUNCTIONS##*/
+    /*#######################*/
+
+    /**
+     * Append template overrides from PageTS configuration (if any).
+     *
+     * This method appends template paths for overriding default templates based on
+     * the PageTS configuration.
+     *
+     * @param array $pageTs The PageTS configuration.
+     * @param array $templatePaths The default template paths.
+     * @throws \RuntimeException If the override syntax is incorrect.
+     * @return array The modified template paths with overrides applied.
      */
     protected function appendTemplateOverridesFromPagets(array $pageTs, array $templatePaths): array
     {
