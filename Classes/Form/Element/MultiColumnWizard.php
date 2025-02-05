@@ -30,9 +30,9 @@ use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Service\DependencyOrderingService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Core\View\ViewFactoryData;
 use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use TYPO3\CMS\Core\View\ViewInterface;
-use TYPO3\CMS\Core\View\ViewFactoryData;
 
 /**
  * This class defines the MultiColumnWizard for rendering and managing form elements with multiple columns.
@@ -44,8 +44,8 @@ class MultiColumnWizard extends AbstractFormElement
     /*########################*/
 
     public function __construct(
-        private ViewFactoryInterface $viewFactory,
-        private IconFactory $iconFactory,
+        private readonly ViewFactoryInterface $viewFactory,
+        private readonly IconFactory $iconFactory,
     ) {}
 
     /**
@@ -62,7 +62,7 @@ class MultiColumnWizard extends AbstractFormElement
         $resultArray = $this->initializeResultArray();
         $view = $this->createCustomView();
 
-        $savedValues = json_decode($this->data['parameterArray']['itemFormElValue'], true);
+        $savedValues = json_decode((string)$this->data['parameterArray']['itemFormElValue'], true);
 
         $linkFields = $this->getLinkFields();
         $linkExplanations = $this->getLinkExplanations($savedValues, $linkFields);
@@ -106,7 +106,7 @@ class MultiColumnWizard extends AbstractFormElement
 
         try {
             $linkData = $linkService->resolve($linkParts['url']);
-        } catch (FileDoesNotExistException | FolderDoesNotExistException | UnknownLinkHandlerException | InvalidPathException $e) {
+        } catch (FileDoesNotExistException | FolderDoesNotExistException | UnknownLinkHandlerException | InvalidPathException) {
             return $data;
         }
 
@@ -152,18 +152,16 @@ class MultiColumnWizard extends AbstractFormElement
      *
      * This method sets up the template and partial root paths required for rendering
      * the MultiColumnWizard.
-     *
-     * @return ViewInterface
      */
     private function createCustomView(): ViewInterface
     {
         $templatePaths = [
             'templateRootPaths' => [
-                'EXT:lia_multicolumnwizard/Resources/Private/Backend/Templates'
+                'EXT:lia_multicolumnwizard/Resources/Private/Backend/Templates',
             ],
             'partialRootPaths' => [
-                'EXT:lia_multicolumnwizard/Resources/Private/Backend/Partials'
-            ]
+                'EXT:lia_multicolumnwizard/Resources/Private/Backend/Partials',
+            ],
         ];
         $templatePaths = $this->appendTemplateOverridesFromPagets($this->data['pageTsConfig'], $templatePaths);
 
@@ -172,9 +170,7 @@ class MultiColumnWizard extends AbstractFormElement
             partialRootPaths: $templatePaths['partialRootPaths'],
             layoutRootPaths: ['EXT:lia_multicolumnwizard/Resources/Private/Backend/Layouts'],
         );
-
-        $view = $this->viewFactory->create($viewFactoryData);
-        return $view;
+        return $this->viewFactory->create($viewFactoryData);
     }
 
     /**
@@ -190,6 +186,7 @@ class MultiColumnWizard extends AbstractFormElement
                 $linkFields[$columnName] = $columnName;
             }
         }
+
         return $linkFields;
     }
 
@@ -213,6 +210,7 @@ class MultiColumnWizard extends AbstractFormElement
                 }
             }
         }
+
         return $linkExplanations;
     }
 
@@ -239,8 +237,10 @@ class MultiColumnWizard extends AbstractFormElement
                         $fragmentTitle = BackendUtility::getRecordTitle('tt_content', $contentElement, false, false);
                     }
                 }
+
                 $fragmentTitle = ' #' . ($fragmentTitle ?: $linkData['fragment']);
             }
+
             $data = [
                 'text' => $pageRecord['_thePathFull'] . '[' . $pageRecord['uid'] . ']' . $fragmentTitle,
                 'icon' => $this->iconFactory->getIconForRecord('pages', $pageRecord, IconSize::SMALL)->render(),
@@ -259,11 +259,10 @@ class MultiColumnWizard extends AbstractFormElement
      */
     private function getEmailLinkData(array $linkData): array
     {
-        $data = [
+        return [
             'text' => $linkData['email'] ?? '',
             'icon' => $this->iconFactory->getIcon('content-elements-mailform', IconSize::SMALL)->render(),
         ];
-        return $data;
     }
 
     /**
@@ -275,12 +274,11 @@ class MultiColumnWizard extends AbstractFormElement
      */
     private function getUrlLinkData(array $linkData): array
     {
-        $data = [
+        return [
             'text' => $linkData['url'] ?? '',
             'icon' => $this->iconFactory->getIcon('apps-pagetree-page-shortcut-external', IconSize::SMALL)->render(),
 
         ];
-        return $data;
     }
 
     /**
@@ -293,15 +291,14 @@ class MultiColumnWizard extends AbstractFormElement
     private function getFileLinkData(array $linkData): array
     {
         $file = $linkData['file'] ?? null;
-        $data = [];
-
         if ($file instanceof File) {
-            $data = [
+            return [
                 'text' => $file->getPublicUrl(),
                 'icon' => $this->iconFactory->getIconForFileExtension($file->getExtension(), IconSize::SMALL)->render(),
             ];
         }
-        return $data;
+
+        return [];
     }
 
     /**
@@ -314,15 +311,14 @@ class MultiColumnWizard extends AbstractFormElement
     private function getFolderLinkData(array $linkData): array
     {
         $folder = $linkData['folder'] ?? null;
-        $data = [];
-
         if ($folder instanceof Folder) {
-            $data = [
+            return [
                 'text' => $folder->getPublicUrl(),
                 'icon' => $this->iconFactory->getIcon('apps-filetree-folder-default', IconSize::SMALL)->render(),
             ];
         }
-        return $data;
+
+        return [];
     }
 
     /**
@@ -336,22 +332,20 @@ class MultiColumnWizard extends AbstractFormElement
     {
         $table = $this->data['pageTsConfig']['TCEMAIN.']['linkHandler.'][$linkData['identifier'] . '.']['configuration.']['table'] ?? '';
         $record = BackendUtility::getRecord($table, $linkData['uid']);
-        $data = [];
 
         if ($record) {
             $recordTitle = BackendUtility::getRecordTitle($table, $record);
             $tableTitle = $this->getLanguageService()->sL($GLOBALS['TCA'][$table]['ctrl']['title']);
-            $data = [
+            return [
                 'text' => sprintf('%s [%s:%d]', $recordTitle, $tableTitle, $linkData['uid']),
                 'icon' => $this->iconFactory->getIconForRecord($table, $record, IconSize::SMALL)->render(),
             ];
-        } else {
-            $data = [
-                'text' => sprintf('%s', $linkData['uid']),
-                'icon' => $this->iconFactory->getIcon('tcarecords-' . $table . '-default', IconSize::SMALL, 'overlay-missing')->render(),
-            ];
         }
-        return $data;
+
+        return [
+            'text' => sprintf('%s', $linkData['uid']),
+            'icon' => $this->iconFactory->getIcon('tcarecords-' . $table . '-default', IconSize::SMALL, 'overlay-missing')->render(),
+        ];
     }
 
     /**
@@ -364,15 +358,14 @@ class MultiColumnWizard extends AbstractFormElement
     private function getTelephoneLinkData(array $linkData): array
     {
         $telephone = $linkData['telephone'];
-        $data = [];
-
         if ($telephone) {
-            $data = [
+            return [
                 'text' => $telephone,
                 'icon' => $this->iconFactory->getIcon('actions-device-mobile', IconSize::SMALL)->render(),
             ];
         }
-        return $data;
+
+        return [];
     }
 
     /**
@@ -384,11 +377,10 @@ class MultiColumnWizard extends AbstractFormElement
      */
     private function getUnknownLinkData(array $linkData): array
     {
-        $data = [
+        return [
             'text' => $linkData['file'] ?? $linkData['url'] ?? '',
             'icon' => $this->iconFactory->getIcon('actions-link', IconSize::SMALL)->render(),
         ];
-        return $data;
     }
 
     /**
@@ -400,11 +392,10 @@ class MultiColumnWizard extends AbstractFormElement
      */
     private function getDefaultLinkData(array $linkData): array
     {
-        $data = [
+        return [
             'text' => 'not implemented type ' . $linkData['type'],
             'icon' => '',
         ];
-        return $data;
     }
 
     /*#######################*/
@@ -424,7 +415,7 @@ class MultiColumnWizard extends AbstractFormElement
      */
     protected function appendTemplateOverridesFromPagets(array $pageTs, array $templatePaths): array
     {
-        if (empty($pageTs)) {
+        if ($pageTs === []) {
             return $templatePaths;
         }
 
@@ -441,6 +432,7 @@ class MultiColumnWizard extends AbstractFormElement
                         1643798660
                     );
                 }
+
                 $composerPackageName = $pathParts[0];
                 $overridePackagePath = $packageManager->getPackage($composerPackageName)->getPackagePath();
                 $overridePath = rtrim($pathParts[1], '/');

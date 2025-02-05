@@ -35,10 +35,8 @@ class GetSelectValuesViewHelper extends AbstractViewHelper
      * Registers two arguments:
      *  - 'configuration': Either a JSON string or an array containing the select options.
      *  - 'optionsFunction': A string representing a callable (class, method, params) to retrieve the options.
-     *
-     * @return void
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         $this->registerArgument('configuration', 'string', 'The json string of the MultiColumnWizard field.');
         $this->registerArgument('optionsFunction', 'string', 'This array has to contain the full classname, the method to call and all the parameter that are needed to call this method.');
@@ -58,6 +56,7 @@ class GetSelectValuesViewHelper extends AbstractViewHelper
             if (is_array($this->arguments['configuration'])) {
                 return $this->arguments['configuration'];
             }
+
             return [];
         }
 

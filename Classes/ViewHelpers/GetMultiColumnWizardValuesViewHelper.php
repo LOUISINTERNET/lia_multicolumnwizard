@@ -14,30 +14,30 @@ namespace LIA\LiaMulticolumnwizard\ViewHelpers;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
- * ViewHelper for parsing the multicolumnwizard json string. 
+ * ViewHelper for parsing the multicolumnwizard json string.
  * Use this to prepare the data from a multicolumnwizard-field into an array.
  *
  * Examples
  * ========
  *
  * Field-data is found in: `data.multicolumnwizard`
- * 
+ *
  * .. code-block:: html
- * 
+ *
  *    <f:variable name="mcwArray" value="{mcw:getMultiColumnWizardValues(json: '{data.multicolumnwizard}', associative: true)}" />`
  *
  * Content of `mcwArray`:
  *
  * .. code-block::
- * 
+ *
  *    array(3) {
  *      'field1' => 'value',
  *      'field2' => 'value',
  *      'field3' => 'value',
  *    }
- * 
+ *
  * So it can be used like:
- * 
+ *
  * .. code-block:: html
  *    <span>{mcwArray.field1}</span>
  *
@@ -55,10 +55,8 @@ final class GetMultiColumnWizardValuesViewHelper extends AbstractViewHelper
      * Registers two arguments:
      *  - 'json': A JSON string to decode.
      *  - 'associative': A boolean flag to return the decoded JSON as an associative array (default: false).
-     *
-     * @return void
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         $this->registerArgument('json', 'string', 'The multicolumn wizard json string.', true);
         $this->registerArgument('associative', 'bool', 'If the array should be associative', false, false);
@@ -81,7 +79,7 @@ final class GetMultiColumnWizardValuesViewHelper extends AbstractViewHelper
             return null;
         }
 
-        $decoded = json_decode($json, $associative);
+        $decoded = json_decode((string)$json, $associative);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             return null;

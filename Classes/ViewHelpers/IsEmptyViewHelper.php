@@ -20,10 +20,10 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
  * Examples
  * ========
  *
- * Usage in a condition like this: 
- * 
+ * Usage in a condition like this:
+ *
  * .. code-block:: html
- * 
+ *
  *    <f:if condition="!{mcw:isEmpty(json: data.tx_lia_multicolumnwizard)}">
  *        <!-- Your content -->
  *    </f:if>
@@ -36,7 +36,7 @@ class IsEmptyViewHelper extends AbstractViewHelper
      * Registers a 'json' argument, which is expected to be a JSON string representing
      * the data from the MulticolumnWizard.
      */
-    public function initializeArguments(): void   
+    public function initializeArguments(): void
     {
         $this->registerArgument('json', 'string', 'The MultiColumnWizard-json string.', true);
     }
@@ -59,7 +59,7 @@ class IsEmptyViewHelper extends AbstractViewHelper
             return true;
         }
 
-        $array = json_decode($jsonString, true);
+        $array = json_decode((string)$jsonString, true);
 
         if (json_last_error() !== JSON_ERROR_NONE || empty($array)) {
             return true;
@@ -70,9 +70,9 @@ class IsEmptyViewHelper extends AbstractViewHelper
                 fn($value) => array_filter($value, fn($val) => !empty($val)),
                 $array
             ),
-            fn($arr) => !empty($arr)
+            fn($arr) => $arr !== null && $arr !== []
         );
 
-        return empty($mcwArray);
+        return $mcwArray === [];
     }
 }

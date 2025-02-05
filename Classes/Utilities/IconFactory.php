@@ -51,6 +51,7 @@ class IconFactory
             if ($icon['name'] == 'icons') {
                 continue;
             }
+
             $items[$icon['name']] = $icon['name'];
         }
 
