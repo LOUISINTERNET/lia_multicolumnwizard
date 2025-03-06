@@ -3,7 +3,7 @@ import $ from "jquery";
 class Multicolumnwizard {
 
     constructor() {
-        this.initializeTrigger();
+      this.initializeTrigger();
     }
 
     /**
@@ -35,7 +35,9 @@ class Multicolumnwizard {
      *
      * @param {Element} node
      */
-    buildTable(node) {
+  buildTable(node) {
+      const tableId = window.crypto.randomUUID();
+
       if (node instanceof HTMLElement && node.classList.contains('ls-multicolumnwizard-wrapper')) {
         const mcw = $(node);
 
@@ -57,18 +59,18 @@ class Multicolumnwizard {
           try {
             jsonLinkExplanation = JSON.parse(_valLinkExplanation);
           } catch (error) {
-            // Handle parse error if needed
+            console.error('Error parsing link explanation JSON:', error);
           }
         }
 
         if (json && mcw.find('.ls-multicolumnwizard-row-container .ls-multicolumnwizard-row').length === 0) {
           $.each(json, (index, data) => {
-            this.createNewRow(mcw, null, data, false, jsonLinkExplanation ? jsonLinkExplanation[index] : undefined);
+            this.createNewRow(mcw, tableId, null, data, false, jsonLinkExplanation ? jsonLinkExplanation[index] : undefined);
           });
         }
 
         if (mcw.find('.ls-multicolumnwizard-row-container .ls-multicolumnwizard-row').length === 0) {
-          this.createNewRow(mcw, null);
+          this.createNewRow(mcw, tableId, null);
         }
       }
     }
@@ -77,11 +79,12 @@ class Multicolumnwizard {
      * Functions that should be bound to the trigger button
      *
      * @param {jQuery} mcw Multicolumnwizard element
+     * @param {string} tableID Unique identifier for the table
      * @param {jQuery} _element
      * @param {Object} data
      * @param {boolean} callSetJson
      */
-    createNewRow(mcw, _element, data = {}, callSetJson = true, jsonLinkExplanation = []) {
+  createNewRow(mcw, tableID, _element, data = {}, callSetJson = true, jsonLinkExplanation = []) {
         let newRow = mcw.find('.ls-multicolumnwizard-row.row-copy').clone();
         let fieldId = Number.parseInt(mcw.attr('data-field-id')) + 1;
         mcw.attr({'data-field-id': fieldId});
@@ -89,7 +92,7 @@ class Multicolumnwizard {
         newRow.removeClass('row-copy');
         newRow.find('.btn-add').click((e) => {
             e.preventDefault();
-            this.createNewRow(mcw, $(e.target));
+            this.createNewRow(mcw, tableID, $(e.target));
         });
         newRow.find('.btn-delete').click((e) => {
             e.preventDefault();
@@ -113,10 +116,10 @@ class Multicolumnwizard {
             this.setJsonData(mcw);
         });
         newRow.find('[id $= "____newid____"]').each(function () {
-            $(this).attr({'id': $(this).attr('id').replace('____newid____', fieldId)});
+            $(this).attr({'id': $(this).attr('id').replace('____newid____', fieldId).replace('tableID', tableID)});
         });
         newRow.find('[for $= "____newid____"]').each(function () {
-            $(this).attr({'for': $(this).attr('for').replace('____newid____', fieldId)});
+            $(this).attr({'for': $(this).attr('for').replace('____newid____', fieldId).replace('tableID', tableID)});
         });
 
         $.each(data, (index, value) => {
