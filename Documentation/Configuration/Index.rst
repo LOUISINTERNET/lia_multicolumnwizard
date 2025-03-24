@@ -12,7 +12,7 @@ Implementation on parent elements
 ------------------------------------
 
 .. code-block:: php
-    :caption: TCA field Configuration
+    :caption: TCA field configuration
 
     'multicolumnwizard' => [
         'exclude' => 1,
@@ -178,10 +178,14 @@ Your Icon.json file schould look like this.
 Link Field
 ~~~~~~~~~~
 
-In order to use the link feature you need to also create a field of type link in the current TCA and reference it in the multicolumnwizard link field in the linkUseField attribute. This field will be automatically hidden by Javascript. In lia_ctypes you could use a liaoptional field for example:
+In order to use the link feature you need to also create a field of type link in the current TCA and reference it in the multicolumnwizard link 
+field in the linkUseField attribute. This field will be automatically hidden by Javascript. 
 
 .. code-block:: php
-    :caption: Example
+    :caption: Link Field Example
+    :emphasize-lines: 8,13,21
+
+    $ctype = &$GLOBALS['TCA']['tt_content']['types']['lia_ctypes_mcw_test'];
 
     $ctype['columnsOverrides']['multicolumnwizard']['config']['columnFields'] = [
         'exampleMultiColumnWizardLinkInput' => [
@@ -200,6 +204,12 @@ In order to use the link feature you need to also create a field of type link in
             'type' => 'link',
         ]
     ];
+
+    $ctype['types'][1]['showitem'] = '... , tx_lia_multicolumnwizard, fieldname_hidden_link_field, ...';
+
+
+..  warning::
+    The `fieldname_hidden_link_field` Field has to be added to showItems to be rendered in the Form, otherwise the linkwizard will not be shown.
 
 Implementation on child elements
 --------------------------------
