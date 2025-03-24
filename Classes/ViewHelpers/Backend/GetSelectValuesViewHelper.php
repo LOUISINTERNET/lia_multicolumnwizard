@@ -84,10 +84,13 @@ class GetSelectValuesViewHelper extends AbstractViewHelper
         }
 
         [$funcName, $params] = $this->arguments['optionsFunction'];
+        if (!is_array($params)) {
+            $params = [];
+        }
 
         $userFuncReturn = GeneralUtility::callUserFunction(
             $funcName,
-            $params ?? []
+            $params
         );
 
         if (is_array($userFuncReturn)) {

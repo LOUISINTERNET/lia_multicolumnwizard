@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace LIA\LiaMulticolumnwizard\Utilities;
 
+use LIA\LiaMulticolumnwizard\Exceptions\Backend\WrongOptionsReturnTypeException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class IconFactory
@@ -31,8 +32,12 @@ class IconFactory
      *
      * @return array $items An array of icons, where the keys and values are the icon names, or an array with a default option if the file cannot be processed.
      */
-    public static function getIcons(string $iconPath): array
+    public static function getIcons(array &$parameters, &$ref): array
     {
+        $iconPath = $parameters['iconPath'];
+        if ($iconPath == '') {
+            throw new WrongOptionsReturnTypeException('Missing required parameters for getReference - Expecting: [\'iconPath\' => \'EXT:your_sitepackage/Resources/Public/Icons.json\']', 1742813775);
+        }
         $file = GeneralUtility::getFileAbsFileName($iconPath);
         $items = ['' => '---'];
 
