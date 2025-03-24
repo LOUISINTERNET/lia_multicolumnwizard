@@ -1,8 +1,9 @@
 ..  This reStructured text file has been automatically generated, do not change.
 
-=================
-MultiColumnWizard
-=================
+
+{headline -> d:decoration()}
+{headline}
+{headline -> d:decoration()}
 
 
 ..  toctree::

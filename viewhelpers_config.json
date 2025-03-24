@@ -2,5 +2,11 @@
     "name": "LiaMultiColumnWizard",
     "label": "MultiColumnWizard",
     "namespaceAlias": "mwc",
-    "targetNamespace": "http://typo3.org/ns/LIA/LiaMulticolumnwizard/ViewHelpers"
+    "targetNamespace": "http://typo3.org/ns/LIA/LiaMulticolumnwizard/ViewHelpers",
+	"templates": {
+        "root": "Build/Documentation/templates/lia/Root.rst",
+        "namespace": "Build/Documentation/templates/lia/Namespace.rst",
+        "group": "Build/Documentation/templates/lia/Group.rst",
+        "viewHelper": "Build/Documentation/templates/lia/ViewHelper.rst"
+    }
 }

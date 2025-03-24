@@ -16,6 +16,6 @@ Content
 ..  toctree::
     :titlesonly:
 
-    LiaMultiColumnWizard/Index
-
+<f:for each="{tocTree}" as="line">    {line}
+</f:for>
 

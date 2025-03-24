@@ -14,7 +14,7 @@ LiaMultiColumnWizard
 
 :Version:
     |release|
- 
+
 :Language:
     en
 
@@ -45,11 +45,11 @@ This extension adds an new TCA-Type that allows to group fields into rows that c
 
         A quick introduction in how to install this extension.
 
-    ..  card:: :ref:`Configuration <Configuration>` 
+    ..  card:: :ref:`Configuration <Configuration>`
 
         How to configure the MultiColumnWizard field.
 
-    ..  card:: :ref:`ViewHelper <ViewHelper>`
+    ..  card:: :ref:`ViewHelper <ViewHelpers>`
 
         A documentation of provided ViewHelpers and how to use them.
 
