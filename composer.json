@@ -5,20 +5,20 @@
 	"authors": [
 		{
 			"name": "LOUIS TYPO3 Developers",
-			"email": "info@dev.louis.info",
+			"email": "devs@louis.info",
 			"homepage": "https://www.louis.info",
 			"role": "Developer"
 		}
 	],
 	"support": {
-		"email": "info@dev.louis.info",
+		"email": "devs@louis.info",
 		"source": "https://github.com/LOUISINTERNET/lia_multicolumnwizard",
 		"docs": "https://docs.typo3.org/p/lia/lia_multicolumnwizard/main/en-us/",
 		"issues": "https://github.com/LOUISINTERNET/lia_multicolumnwizard/issues"
 	},
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"typo3/cms-core": "^12.4"
+		"typo3/cms-core": "^13.4"
 	},
 	"require-dev": {
 		"typo3/coding-standards": "^0.8.0",

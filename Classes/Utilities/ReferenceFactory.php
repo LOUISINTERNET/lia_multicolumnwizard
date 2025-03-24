@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
 * This file is part of the "lia_multicolumnwizard" Extension for TYPO3 CMS.
 *
@@ -14,24 +16,42 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class ReferenceFactory
 {
+    /*########################*/
+    /*####PUBLIC FUNCTIONS####*/
+    /*########################*/
+
     /**
-     * getReference
+     * Retrieves reference data from a specified database table.
      *
-     * @param string $databaseName
-     * @param string $valueField
-     * @param string $outputNameField
+     * This method retrieves data from a specified database table using the provided field names
+     * for the value and output. It returns an array where the keys are the values from the
+     * `$valueField` and the corresponding values are from the `$outputNameField`.
      *
-     * @return array items
+     * If the database query fails, an error message is logged using the TYPO3 logging system.
+     *
+     * @param string $databaseName The name of the database table to query.
+     * @param string $valueField The field used for the keys in the returned array.
+     * @param string $outputNameField The field used for the values in the returned array.
+     *
+     * @return array $items An array of reference data with values from the specified fields, or an empty array if no results are found.
      */
     public static function getReference(string $databaseName, string $valueField, string $outputNameField): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($databaseName);
-        $pages = $queryBuilder->select('*')->from($databaseName)->execute()->fetchAll();
         $items = ['' => '---'];
+
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($databaseName);
+
+        $pages = $queryBuilder
+            ->select($valueField, $outputNameField)
+            ->from($databaseName)
+            ->executeQuery()
+            ->fetchAllAssociative();
 
         if (!empty($pages)) {
             foreach ($pages as $page) {
-                $items[$page[$valueField]] = $page[$outputNameField];
+                if (isset($page[$valueField], $page[$outputNameField])) {
+                    $items[$page[$valueField]] = $page[$outputNameField];
+                }
             }
         }
 

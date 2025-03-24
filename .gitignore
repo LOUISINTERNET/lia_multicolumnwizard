@@ -4,6 +4,7 @@
 .DS_Store
 *.vscode
 /.Build/*
+.idea/
 Documentation-GENERATED-temp/*
 public/*
 /vendor/*

@@ -26,3 +26,6 @@
 .btn-delete {
   visibility: hidden;
 }
+.disable-default-close .close {
+    display: none;
+}

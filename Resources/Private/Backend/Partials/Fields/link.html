@@ -1,29 +1,39 @@
-<div  xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-      data-namespace-typo3-fluid="true">
-    <div class="formengine-field-item t3js-formengine-field-item">
-        <div class="form-control-wrap">
+<div xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+    <div class="formengine-field-item t3js-formengine-field-item disable-default-close">
+        <div class="form-control-wrap" style="max-width: 804px">
             <div class="form-wizards-wrap">
-                <div class="form-wizards-element">
+                <div class="form-wizards-item-element">
                     <div class="input-group t3js-form-field-link">
-                        <span class="t3js-form-field-link-icon input-group-addon"></span>
-                        <input class="form-control t3js-form-field-link-explanation input_name_full" title="" value="" readonly="" hidden="" data-ignore="1">
-
+                        <span class="t3js-form-field-link-icon input-group-text mwc-add-link-icon"></span>
+                        <input class="form-control form-control-explanation t3js-form-field-link-explanation" title="" value="" readonly="" hidden="" data-ignore="1" >
                         <div class="form-control-clearable-wrapper">
-                            <input type="text" class="form-control form-control-clearable t3js-clearable t3js-form-field-link-input input_name_original" data-ignore="1">
-                            <button type="button" tabindex="-1" class="close mwc-add-link-icon-close" style="visibility: hidden">
-                                <core:icon identifier="actions-close" size="small" />
+                            <input type="text" id="formengine-input-670ba507eff99481113423" class="form-control form-control-clearable t3js-clearable t3js-form-field-link-input" data-formengine-input-initialized="true" data-ignore="1" >
+                            <button type="button" tabindex="-1" title="Clear input" aria-label="Clear input" class="close mwc-close" style="visibility: hidden;">
+                                <span class="t3js-icon icon icon-size-small icon-state-default icon-actions-close" data-identifier="actions-close">
+                                    <span class="icon-markup">
+                                        <core:icon identifier="actions-close" size="small" />
+                                    </span>
+                                </span>
                             </button>
                         </div>
-                        <button class="btn btn-default t3js-form-field-link-explanation-toggle disabled mwc-add-link-edit-link-button" type="button" title="Toggle link explanation" disabled="disabled">
-                            <core:icon identifier="actions-version-workspaces-preview-link" size="small" />
+                        <input type="text" id="mcw_{name}-tableID-{id}" value="" data-name="{name}" style="display:none;">
+                        <button class="btn btn-default t3js-form-field-link-explanation-toggle mwc-add-link-edit-link-button" type="button" title="Toggle link explanation" disabled="">
+                            <span class="t3js-icon icon icon-size-small icon-state-default icon-actions-version-workspaces-preview-link" data-identifier="actions-version-workspaces-preview-link" aria-hidden="true">
+                                <span class="icon-markup">
+                                    <core:icon identifier="actions-eye-link" size="small" />
+                                </span>
+                            </span>
                         </button>
-                        <input type="text" id="mcw_{name}-{itemFormElID}-{id}" class="form-control input_url_orignal" maxlength="255" data-name="{name}" style="display: none;">
                     </div>
                 </div>
-                <div class="form-wizards-items-aside form-wizards-items-aside--field-control">
+                <div class="form-wizards-item-aside form-wizards-item-aside--field-control">
                     <div class="btn-group">
-                        <a id="t3js-formengine-fieldcontrol-656883e548aaa979770939" href="" data-fieldid="mcw_{name}-{itemFormElID}-{id}" data-fieldname="{name}" data-linkusefield="{conf.linkUseField}" class="btn btn-default">
-                            <core:icon identifier="actions-link" size="small" />
+                        <a href="" data-fieldid="mcw_{name}-tableID-{id}" data-fieldname="{name}" data-linkusefield="{conf.linkUseField}" aria-label="Open link wizard" class="btn btn-default">
+                            <span title="Link" class="t3js-icon icon icon-size-small icon-state-default icon-actions-wizard-link" data-identifier="actions-wizard-link" aria-hidden="true">
+                                <span class="icon-markup">
+                                    <core:icon identifier="actions-link" size="small" />
+                                </span>
+                            </span>
                         </a>
                     </div>
                 </div>

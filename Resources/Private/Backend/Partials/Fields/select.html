@@ -1,11 +1,9 @@
-<div  xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-      data-namespace-typo3-fluid="true"
->
+<div xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
   <div class="formengine-field-item t3js-formengine-field-item">
     <div class="form-control-wrap">
       <div class="form-wizards-wrap">
         <div class="form-wizards-element">
-          <select id="mcw_{name}-{itemFormElID}-{id}" data-name="{name}" class="form-select form-control-adapt" style="width: 100%;">
+          <select id="mcw_{name}-tableID-{id}" data-name="{name}" class="form-select form-control-adapt" style="width: 100%;">
             <f:for each="{mcw:backend.getSelectValues(configuration:conf.options, optionsFunction:conf.optionsFunction)}" as="val" key="key">
               <option value="{key}">{val}</option>
             </f:for>

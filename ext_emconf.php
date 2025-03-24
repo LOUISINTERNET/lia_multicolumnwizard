@@ -5,14 +5,13 @@ $EM_CONF[$_EXTKEY] = [
     'description' => 'This extension adds an new TCA-Type that allows to group fields into rows that can be multiplied.',
     'category' => 'plugin',
     'author' => 'LOUIS TYPO3 Developers',
-    'author_email' => 'info@dev.louis.info',
+    'author_company' => 'LOUIS INTERNET',
+    'author_email' => 'devs@louis.info',
     'state' => 'stable',
-    'version' => '1.1.0',
+    'version' => '2.0.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '11.5.0-12.5.99',
+            'typo3' => '13.4.0-13.4.99',
         ],
-        'conflicts' => [],
-        'suggests' => [],
     ],
 ];
