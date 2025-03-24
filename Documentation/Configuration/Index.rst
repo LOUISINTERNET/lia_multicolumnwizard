@@ -57,21 +57,21 @@ Implementation on parent elements
                     'label' => 'Icon',
                     'type' => 'select',
                     'options' => '',
-                    'optionsFunction' => ['\\LIA\\LiaMulticolumnwizard\\Utilities\\IconFactory','getIcons',['EXT:my_extkey/Resources/Public/path/to/my/Icons.json']],
+                    'optionsFunction' => [LIA\LiaMulticolumnwizard\Utilities\IconFactory::class . '->getIcons',['EXT:my_extkey/Resources/Public/path/to/my/Icons.json']],
                 ],
                 'exampleMultiColumnWizardReference' => [
                     'divClass' => 'col-sm-2',
                     'label' => 'Reference',
                     'type' => 'select',
                     'options' => '',
-                    'optionsFunction' => ['\\LIA\\LiaMulticolumnwizard\\Utilities\\ReferenceFactory','getReference',['pages', 'uid', 'title']],
+                    'optionsFunction' => [LIA\LiaMulticolumnwizard\Utilities\ReferenceFactory::class . '->getReference',['pages', 'uid', 'title']],
                 ],
                 'exampleMultiColumnWizardLanguage' => [
                     'divClass' => 'col-sm-2',
                     'label' => 'Languages',
                     'type' => 'select',
                     'options' => '',
-                    'optionsFunction' => ['\\LIA\\LiaMulticolumnwizard\\Utilities\\TCAFactory','getAvailableLanguagesForAllSites',[]],
+                    'optionsFunction' => [LIA\LiaMulticolumnwizard\Utilities\TCAFactory::class . '->getAvailableLanguagesForAllSites'],
                 ],
                 'exampleMultiColumnWizardLinkInput' => [
                     'divClass' => 'col-sm-2',
@@ -102,7 +102,7 @@ Set up the DatabaseFileds in your database tables:
 and expand your model with variable, getter and setters:
 
 .. code-block:: php
-    :caption: EXT:/your_extension/Domain/Model/Itenm.php 
+    :caption: EXT:/your_extension/Domain/Model/Itenm.php
 
     /**
     * multicolumnwizard
@@ -256,21 +256,21 @@ you can use the option `'showLabelAboveField' => true`, if this is set the label
             'label' => 'Icon',
             'type' => 'select',
             'options' => '',
-            'optionsFunction' => ['\\LIA\\LiaMulticolumnwizard\\Utilities\\IconFactory','getIcons',['EXT:lia_package/Resources/Public/Icons.json']],
+            'optionsFunction' => [LIA\LiaMulticolumnwizard\Utilities\IconFactory::class . '->getIcons',['EXT:lia_package/Resources/Public/Icons.json']],
         ],
         'fieldName_6' => [
             'divClass' => 'col-sm-2',
             'label' => 'Reference',
             'type' => 'select',
             'options' => '',
-            'optionsFunction' => ['\\LIA\\LiaMulticolumnwizard\\Utilities\\ReferenceFactory','getReference',['pages', 'uid', 'title']],
+            'optionsFunction' => [LIA\LiaMulticolumnwizard\Utilities\ReferenceFactory::class . '->getReference',['pages', 'uid', 'title']],
         ],
         'fieldName_7' => [
             'divClass' => 'col-sm-2',
             'label' => 'Languages',
             'type' => 'select',
             'options' => '',
-            'optionsFunction' => ['\\LIA\\LiaMulticolumnwizard\\Utilities\\TCAFactory','getAvailableLanguagesForAllSites',[]],
+            'optionsFunction' => [LIA\LiaMulticolumnwizard\Utilities\TCAFactory::class . '->getAvailableLanguagesForAllSites',[]],
         ],
         'fieldName_8' => [
             'divClass' => 'col-sm-2',
@@ -298,7 +298,6 @@ Override Backend-Template Paths
 Backendtemplates can be overriden using the `general backend template override feature<https://docs.typo3.org/m/typo3/reference-tsconfig/12.4/en-us/PageTsconfig/Templates.html>`__
 
 
-
 Example
 ~~~~~~~~
 
@@ -311,3 +310,10 @@ and define this in your TSConfig:
 .. code-block:: typoscript
     templates.lia/lia_multicolumnwizard.1721919321 = my_vendor/my_extension_key:Resources/Private/Extensions/LiaMulticolumnWizard/Backend
 
+
+
+Options function
+----------------
+
+Here you can also use your own function to generate the selection options. The function must return an array, otherwise you will receive an exception.
+Enter the complete class name as the first parameter. The second parameter is the function name followed by an array with all the parameters required to execute your function.
