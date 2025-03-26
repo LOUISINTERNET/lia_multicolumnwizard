@@ -22,12 +22,18 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
  *
  * This ViewHelper can either return the configuration array directly or call a specified method
  * to retrieve the select values dynamically.
+ * 
  * .. caution::
- *    This ViewHelper can be used in the backend context only. In other context it will only return the configuration array.
+ *    This ViewHelper can be used in the backend context only. 
+ *    In all other context it will just return the configuration array.
  * 
  * Example usage:
+ * --------------
  *
- * <lia:getSelectValues configuration="{data.configuration}" optionsFunction="{data.function}" />
+ * .. code::
+ *    :caption: Example ViewHelper usage
+ * 
+ *    <lia:getSelectValues configuration="{data.configuration}" optionsFunction="{data.function}" />
  */
 class GetSelectValuesViewHelper extends AbstractViewHelper
 {

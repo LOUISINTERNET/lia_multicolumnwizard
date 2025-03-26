@@ -44,7 +44,7 @@
 	},
 	"config": {
 		"vendor-dir": ".Build/vendor",
-		"bin-dir": ".Build/bin",
+		"bin-dir": ".Build/vendor/bin",
 		"allow-plugins": {
 			"typo3/class-alias-loader": true,
 			"typo3/cms-composer-installers": true
@@ -52,7 +52,7 @@
 	},
 	"scripts": {
 		"viewhelper-docs": [
-			"FLUID_DOCUMENTATION_OUTPUT_DIR=Documentation/ViewHelper .Build/bin/fluidDocumentation generate viewhelpers_config.json"
+			"FLUID_DOCUMENTATION_OUTPUT_DIR=Documentation/ViewHelper .Build/vendor/bin/fluidDocumentation generate viewhelpers_config.json"
 		],
 		"build-docs": [
 			"docker run --rm --pull always -v $(pwd):/project -it ghcr.io/typo3-documentation/render-guides:latest --config=Documentation"
