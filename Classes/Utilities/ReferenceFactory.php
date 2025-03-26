@@ -48,16 +48,16 @@ class ReferenceFactory
 
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($tableName);
 
-        $pages = $queryBuilder
+        $results = $queryBuilder
             ->select($valueField, $outputNameField)
             ->from($tableName)
             ->executeQuery()
             ->fetchAllAssociative();
 
-        if (!empty($pages)) {
-            foreach ($pages as $page) {
-                if (isset($page[$valueField], $page[$outputNameField])) {
-                    $items[$page[$valueField]] = $page[$outputNameField];
+        if (!empty($results)) {
+            foreach ($results as $resultRow) {
+                if (isset($resultRow[$valueField], $resultRow[$outputNameField])) {
+                    $items[$resultRow[$valueField]] = $resultRow[$outputNameField];
                 }
             }
         }

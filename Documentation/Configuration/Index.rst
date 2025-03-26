@@ -57,7 +57,7 @@ Implementation on parent elements
                     'label' => 'Icon',
                     'type' => 'select',
                     'options' => '',
-                    'optionsFunction' => [LIA\LiaMulticolumnwizard\Utilities\IconFactory::class . '->getIcons', ['iconPath' => 'EXT:lia_package/Resources/Public/Icons.json']],
+                    'optionsFunction' => [LIA\LiaMulticolumnwizard\Utilities\IconFactory::class . '->getIcons', ['iconPath' => 'EXT:your_extension/Resources/Public/Icons.json']],
                 ],
                 'exampleMultiColumnWizardReference' => [
                     'divClass' => 'col-sm-2',
@@ -256,7 +256,7 @@ you can use the option `'showLabelAboveField' => true`, if this is set the label
             'label' => 'Icon',
             'type' => 'select',
             'options' => '',
-            'optionsFunction' => [LIA\LiaMulticolumnwizard\Utilities\IconFactory::class . '->getIcons', ['iconPath' => 'EXT:your_sitepackage/Resources/Public/Icons.json']],
+            'optionsFunction' => [LIA\LiaMulticolumnwizard\Utilities\IconFactory::class . '->getIcons', ['iconPath' => 'EXT:your_extension/Resources/Public/Icons.json']],
         ],
         'fieldName_6' => [
             'divClass' => 'col-sm-2',
@@ -303,12 +303,12 @@ Example
 
 To overwrite the partial for text-input, place a Partials into the directory:
 
-`extensions/my_extension_key/Resources/Private/Backend/Partials/Fields/text.html`
+`extensions/your_extension/Resources/Private/Backend/Partials/Fields/text.html`
 
 and define this in your TSConfig:
 
 .. code-block:: typoscript
-    templates.lia/lia_multicolumnwizard.1721919321 = my_vendor/my_extension_key:Resources/Private/Extensions/LiaMulticolumnWizard/Backend
+    templates.lia/lia_multicolumnwizard.1721919321 = your_vendor/your_extension:Resources/Private/Extensions/LiaMulticolumnWizard/Backend
 
 
 

@@ -22,7 +22,8 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
  *
  * This ViewHelper can either return the configuration array directly or call a specified method
  * to retrieve the select values dynamically.
- * It should only be used in the backend context.
+ * .. caution::
+ *    This ViewHelper can be used in the backend context only. In other context it will only return the configuration array.
  * 
  * Example usage:
  *
