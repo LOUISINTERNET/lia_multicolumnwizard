@@ -10,7 +10,9 @@ class Multicolumnwizard {
    * Initialize triggers
    */
   initializeTrigger() {
-    this.buildTable(document.querySelector('.ls-multicolumnwizard-wrapper'));
+    document.querySelectorAll('.ls-multicolumnwizard-wrapper').forEach(wrapper => {
+      this.buildTable(wrapper);
+    });
 
     const observer = new MutationObserver((mutationsList) => {
       mutationsList.forEach((mutation) => {
