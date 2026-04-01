@@ -57,8 +57,8 @@ class GetSelectValuesViewHelper extends AbstractViewHelper
         );
         $this->registerArgument(
             'optionsFunction',
-            'string',
-            'This array has to contain the full classname, the method to call and all the parameter that are needed to call this method.'
+            'array',
+            'Array with [0] = "ClassName->methodName" and [1] = parameters array.'
         );
     }
 
@@ -74,15 +74,15 @@ class GetSelectValuesViewHelper extends AbstractViewHelper
     {
         $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
         if (empty($request) || !$request instanceof ServerRequestInterface) {
-            return $this->arguments['configuration'];
+            return is_array($this->arguments['configuration']) ? $this->arguments['configuration'] : [];
         }
 
         // This ViewHelper should only used in the backend application context!
         if (!ApplicationType::fromRequest($request)->isBackend()) {
-            return $this->arguments['configuration'];
+            return is_array($this->arguments['configuration']) ? $this->arguments['configuration'] : [];
         }
 
-        if ($this->arguments['optionsFunction'] == '') {
+        if (empty($this->arguments['optionsFunction'])) {
             if (is_array($this->arguments['configuration'])) {
                 return $this->arguments['configuration'];
             }

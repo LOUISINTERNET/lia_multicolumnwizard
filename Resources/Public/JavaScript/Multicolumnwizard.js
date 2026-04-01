@@ -218,6 +218,10 @@ class Multicolumnwizard {
       });
       $(this).click(function (e) {
         e.preventDefault();
+        if (!$triggerLinkInput.length) {
+          console.warn('[MCW] Link proxy field not found for linkUseField "' + $(this).attr('data-linkusefield') + '". Ensure the field is in showitem.');
+          return;
+        }
         $triggerLinkHiddenField.val($linkHiddenField.val());
         $triggerLinkHiddenField.off('change');
         $triggerLinkHiddenField.on('change', function () {

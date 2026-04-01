@@ -13,3 +13,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - Remove unreachable dead code in GetSelectValuesViewHelper
 - Add rector.php and fractor.php as upgrade deliverables
 - Bump version to 2.1.0
+
+### Fixed
+- Fix JS crash when linkUseField proxy element is missing from DOM
+- Fix optionsFunction argument type from string to array
+- Fix render() return type safety when configuration is not an array
