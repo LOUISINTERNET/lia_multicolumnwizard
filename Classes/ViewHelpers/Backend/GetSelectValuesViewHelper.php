@@ -48,7 +48,7 @@ class GetSelectValuesViewHelper extends AbstractViewHelper
      *  - 'configuration': Either a JSON string or an array containing the select options.
      *  - 'optionsFunction': A string representing a callable (class, method, params) to retrieve the options.
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         $this->registerArgument(
             'configuration',
@@ -102,13 +102,11 @@ class GetSelectValuesViewHelper extends AbstractViewHelper
 
         if (is_array($userFuncReturn)) {
             return $userFuncReturn;
-        } else {
-            throw new WrongOptionsReturnTypeException(
-                'The function you use has to return an array.',
-                1740144629
-            );
         }
 
-        return [];
+        throw new WrongOptionsReturnTypeException(
+            'The function you use has to return an array.',
+            1740144629
+        );
     }
 }

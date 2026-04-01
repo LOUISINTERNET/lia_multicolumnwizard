@@ -46,6 +46,7 @@ class MultiColumnWizard extends AbstractFormElement
     public function __construct(
         private readonly ViewFactoryInterface $viewFactory,
         private readonly IconFactory $iconFactory,
+        private readonly LinkService $linkService,
     ) {}
 
     /**
@@ -102,7 +103,7 @@ class MultiColumnWizard extends AbstractFormElement
         $data = ['text' => '', 'icon' => ''];
         $typolinkService = GeneralUtility::makeInstance(TypoLinkCodecService::class);
         $linkParts = $typolinkService->decode($itemValue);
-        $linkService = GeneralUtility::makeInstance(LinkService::class);
+        $linkService = $this->linkService;
 
         try {
             $linkData = $linkService->resolve($linkParts['url']);
