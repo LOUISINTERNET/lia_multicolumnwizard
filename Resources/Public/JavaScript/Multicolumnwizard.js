@@ -125,7 +125,7 @@ class Multicolumnwizard {
     });
 
     $.each(data, (index, value) => {
-      if (newRow.find('input[type="text"][data-name="' + index + '"], select[data-name="' + index + '"], textarea[data-name="' + index + '"]').length) {
+      if (newRow.find('input[type="text"][data-name="' + index + '"], input[type="hidden"][data-name="' + index + '"], select[data-name="' + index + '"], textarea[data-name="' + index + '"]').length) {
         newRow.find('[data-name="' + index + '"]').val(value);
       }
       if (newRow.find('input[type="checkbox"][data-name="' + index + '"]').length) {
@@ -136,9 +136,9 @@ class Multicolumnwizard {
     });
 
     $(newRow).find('[data-linkusefield]').each(function () {
-      var $linkTextField = $(this).closest('.formengine-field-item').find('input[data-ignore]');
+      var $linkTextField = $(this).closest('.formengine-field-item').find('input.t3js-form-field-link-input[data-ignore]');
       var fieldName = $(this).attr('data-fieldname');
-      var $linkHiddenField = $(this).closest('.form-control-wrap').find('input[type="text"][data-name]');
+      var $linkHiddenField = $(this).closest('.form-control-wrap').find('input[data-name]');
       var $originalLinkTextField = $(this).closest('.form-control-wrap').find('input[type="text"][data-formengine-input-initialized]');
       var $linkIcon = $(this).closest('.form-control-wrap').find('.mwc-add-link-icon');
       var $linkEditLinkButton = $(this).closest('.form-control-wrap').find('.mwc-add-link-edit-link-button');
