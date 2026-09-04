@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [2.3.0] - 2026-09-04
+
+### Added
+- Soft reference parser `multiColumnWizardTypolink` makes the links of a wizard field visible to `sys_refindex`. A wizard stores its rows as JSON, which the core `typolink` parser cannot read, so links maintained in the wizard were not indexed at all: TYPO3 did not warn that a page was still referenced when it was deleted, and the info module did not list the reference
+- The parser walks the rows and delegates every value of a `link` column to the core typolink parser, so all link types it supports are covered, page and record links included. Link columns are read from `columnFields` of the field, unioned with the `columnsOverrides` of every record type, because the reference index works on the raw record and does not resolve the type
+- Enable it per field with `'softref' => 'multiColumnWizardTypolink'` and run `typo3 referenceindex:update` to index existing records
+
 ## [2.2.0] - 2026-09-04
 
 ### Added

@@ -158,6 +158,43 @@ number of characters.
    own :html:`minlength` validation. Empty fields are never flagged - use
    :php:`minitems` to require rows.
 
+Reference index
+---------------
+
+A multiColumnWizard field stores its rows as a JSON string, which the :php:`typolink`
+soft reference parser cannot read. Links maintained in the wizard are therefore invisible
+to :sql:`sys_refindex` by default: TYPO3 does not warn that a page is still referenced
+when it is deleted, and the info module does not list the reference.
+
+The parser key :php:`multiColumnWizardTypolink` closes that gap. It walks the rows, hands
+every value of a :php:`link` column to the typolink parser and merges the results, so the
+links are indexed like the ones of a native link field.
+
+.. code-block:: php
+    :caption: TCA field configuration
+
+    'multicolumnwizard' => [
+        'exclude' => 1,
+        'label' => 'Buttons',
+        'config' => [
+            'type' => 'user',
+            'renderType' => 'multiColumnWizard',
+            'softref' => 'multiColumnWizardTypolink',
+            'columnFields' => [
+                // ...
+            ],
+        ],
+    ],
+
+Run :bash:`typo3 referenceindex:update` afterwards to index the existing records. All link
+types the typolink parser supports are covered, page and record links included.
+
+..  note::
+    The link columns are read from :php:`columnFields` of the field, unioned with the
+    :php:`columnsOverrides` of every record type - the reference index works on the raw
+    record and does not resolve the type. A column name used as a link in one record type
+    and as something else in another is consequently parsed as a link everywhere.
+
 Set up the DatabaseFileds in your database tables:
 
 .. code-block:: sql

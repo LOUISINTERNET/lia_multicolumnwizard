@@ -8,3 +8,9 @@ services:
   LIA\LiaMulticolumnwizard\:
     resource: '../Classes/*'
     exclude: '../Classes/Domain/Model/*'
+
+  # The parser key cannot be derived from the class, so the tag is set explicitly.
+  LIA\LiaMulticolumnwizard\DataHandling\SoftReference\MultiColumnWizardSoftReferenceParser:
+    tags:
+      - name: softreference.parser
+        parserKey: multiColumnWizardTypolink
