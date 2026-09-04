@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace LIA\LiaMulticolumnwizard\Form\Element;
 
+use LIA\LiaMulticolumnwizard\Exceptions\Backend\InvalidOptionValueException;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Backend\Form\Element\AbstractFormElement;
 use TYPO3\CMS\Backend\Form\Event\ModifyLinkExplanationEvent;
@@ -39,6 +40,28 @@ use TYPO3\CMS\Core\View\ViewInterface;
  */
 class MultiColumnWizard extends AbstractFormElement
 {
+    /**
+     * Default field information enabled for this element, so the TCA "description" of a
+     * multiColumnWizard field is rendered like it is for native form elements.
+     *
+     * @var array
+     */
+    protected $defaultFieldInformation = [
+        'tcaDescription' => [
+            'renderType' => 'tcaDescription',
+        ],
+    ];
+
+    /**
+     * Length limit applied to "text" columns that do not configure their own "max".
+     */
+    private const DEFAULT_TEXT_MAX_LENGTH = 255;
+
+    /**
+     * Column types the "min" and "max" length options apply to.
+     */
+    private const LENGTH_AWARE_COLUMN_TYPES = ['text', 'textarea'];
+
     /*########################*/
     /*####PUBLIC FUNCTIONS####*/
     /*########################*/
@@ -65,11 +88,29 @@ class MultiColumnWizard extends AbstractFormElement
 
         $savedValues = json_decode((string)$this->data['parameterArray']['itemFormElValue'], true);
 
+        $config = $this->data['parameterArray']['fieldConf']['config'];
+        $minItems = $this->readNonNegativeInteger($config, 'minitems');
+        $maxItems = $this->readNonNegativeInteger($config, 'maxitems');
+
+        if ($maxItems > 0 && $minItems > $maxItems) {
+            throw new InvalidOptionValueException(
+                sprintf('multiColumnWizard option "minitems" (%d) must not exceed "maxitems" (%d).', $minItems, $maxItems),
+                1788524537
+            );
+        }
+
         $linkFields = $this->getLinkFields();
         $linkExplanations = $this->getLinkExplanations($savedValues, $linkFields);
 
+        $fieldInformationResult = $this->renderFieldInformation();
+        $resultArray = $this->mergeChildReturnIntoExistingResult($resultArray, $fieldInformationResult, false);
+
         $view->assignMultiple([
             'data' => $this->data,
+            'fieldInformation' => $fieldInformationResult['html'],
+            'columnFields' => $this->normalizeColumnFields($config['columnFields']),
+            'minItems' => $minItems,
+            'maxItems' => $maxItems,
             'linkExplanation' => json_encode($linkExplanations),
         ]);
 
@@ -83,6 +124,77 @@ class MultiColumnWizard extends AbstractFormElement
     /*#######################*/
     /*###PRIVATE FUNCTIONS###*/
     /*#######################*/
+
+    /**
+     * Resolves the "min" and "max" length options of every length-aware column.
+     *
+     * Defaults keep the previous behaviour: "text" columns are capped at 255 characters,
+     * "textarea" columns stay uncapped unless a "max" is configured.
+     *
+     * @param array $columnFields The column configuration as defined in TCA.
+     * @return array The column configuration with resolved "min" and "max" values.
+     */
+    private function normalizeColumnFields(array $columnFields): array
+    {
+        foreach ($columnFields as $columnName => $columnField) {
+            if (!in_array($columnField['type'] ?? '', self::LENGTH_AWARE_COLUMN_TYPES, true)) {
+                continue;
+            }
+
+            $maxLength = $this->readNonNegativeInteger($columnField, 'max', $columnName);
+            $minLength = $this->readNonNegativeInteger($columnField, 'min', $columnName);
+
+            if ($maxLength === 0 && $columnField['type'] === 'text') {
+                $maxLength = self::DEFAULT_TEXT_MAX_LENGTH;
+            }
+
+            if ($maxLength > 0 && $minLength > $maxLength) {
+                throw new InvalidOptionValueException(
+                    sprintf(
+                        'multiColumnWizard column "%s": option "min" (%d) must not exceed "max" (%d).',
+                        $columnName,
+                        $minLength,
+                        $maxLength
+                    ),
+                    1788524538
+                );
+            }
+
+            $columnFields[$columnName]['max'] = $maxLength;
+            $columnFields[$columnName]['min'] = $minLength;
+        }
+
+        return $columnFields;
+    }
+
+    /**
+     * Reads a numeric option and rejects anything but a non-negative integer.
+     *
+     * Absent options resolve to 0, which every consumer reads as "no limit".
+     *
+     * @param array $options The option set to read from.
+     * @param string $option The option name.
+     * @param string|null $columnName The column the option belongs to, for the error message.
+     * @return int The option value.
+     */
+    private function readNonNegativeInteger(array $options, string $option, ?string $columnName = null): int
+    {
+        $value = $options[$option] ?? 0;
+
+        if (!MathUtility::canBeInterpretedAsInteger($value) || (int)$value < 0) {
+            throw new InvalidOptionValueException(
+                sprintf(
+                    'multiColumnWizard%s option "%s" must be a non-negative integer, got "%s".',
+                    $columnName === null ? '' : sprintf(' column "%s"', $columnName),
+                    $option,
+                    get_debug_type($value)
+                ),
+                1788524539
+            );
+        }
+
+        return (int)$value;
+    }
 
     /**
      * Retrieves an explanation for a link based on the provided item value.

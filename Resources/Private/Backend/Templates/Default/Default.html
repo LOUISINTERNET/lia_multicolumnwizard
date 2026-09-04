@@ -1,12 +1,13 @@
-<div xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<div xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" class="t3js-formengine-validation-marker" data-namespace-typo3-fluid="true">
   <label class="form-label t3js-formengine-label">
       <span>{data.parameterArray.fieldConf.label}</span>
       <code>[{data.fieldName}]</code>
   </label>
-  <div id="ls-multicolumnwizard-{data.databaseRow.uid}" class="ls-multicolumnwizard-wrapper" data-field-id="0">
+  <f:format.raw>{fieldInformation}</f:format.raw>
+  <div id="ls-multicolumnwizard-{data.databaseRow.uid}" class="ls-multicolumnwizard-wrapper" data-field-id="0" data-minitems="{minItems}" data-maxitems="{maxItems}">
     <div class="ls-multicolumnwizard-row">
       <div class="row">
-        <f:for each="{data.parameterArray.fieldConf.config.columnFields}" as="config">
+        <f:for each="{columnFields}" as="config">
           <f:if condition="!{config.showLabelAboveField}">
             <div class="{config.divClass}">
               <f:if condition="{config.label}">
@@ -21,12 +22,18 @@
       </div>
     </div>
     <div class="ls-multicolumnwizard-row row-copy" style="display: none;">
-      <f:render partial="Fieldsrow" arguments="{configuration: '{data.parameterArray.fieldConf.config.columnFields}', id: '____newid____'}"/>
+      <f:render partial="Fieldsrow" arguments="{configuration: columnFields, id: '____newid____'}"/>
     </div>
     <div class="ls-multicolumnwizard-row-container"></div>
     <div class="row-destination"></div>
     <input type="hidden" name="{data.parameterArray.itemFormElName}" value="{data.parameterArray.itemFormElValue}" class="jsonfield">
     <input type="hidden" value="{linkExplanation}" class="linkExplanation">
   </div>
+  <f:if condition="{minItems} > 0 || {maxItems} > 0">
+    <div class="form-text ls-multicolumnwizard-limits">
+      <f:if condition="{minItems} > 0">Minimum of {minItems} row(s).</f:if>
+      <f:if condition="{maxItems} > 0">Maximum of {maxItems} row(s).</f:if>
+    </div>
+  </f:if>
 
 </div>

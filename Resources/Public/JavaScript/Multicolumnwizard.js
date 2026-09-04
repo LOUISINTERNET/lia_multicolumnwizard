@@ -27,10 +27,20 @@ class Multicolumnwizard {
       });
     });
 
-    // panel-groups for new elements and -collapse for closed panels
-    const targetNodes = Array.from(document.querySelectorAll('.panel-collapse, .panel-group'));
+    // panel-groups for new elements, -collapse for closed panels and the IRRE record
+    // containers, so a child record added after page load initializes its wizards too
+    const targetNodes = Array.from(document.querySelectorAll('.panel-collapse, .panel-group, [id $= "_records"]'));
     const config = { childList: true, subtree: false };
     targetNodes.forEach(targetNode => observer.observe(targetNode, config));
+
+    // FormEngineValidation.initialize() drops every has-error class of the form and may
+    // run after this module, so the wizards are re-validated whenever FormEngine has
+    // validated a field of its own. validate() dispatches no such event itself.
+    document.addEventListener('t3-formengine-postfieldvalidation', () => {
+      document.querySelectorAll('.ls-multicolumnwizard-wrapper').forEach(wrapper => {
+        this.validate($(wrapper));
+      });
+    });
   }
 
   /**
@@ -74,6 +84,8 @@ class Multicolumnwizard {
       if (mcw.find('.ls-multicolumnwizard-row-container .ls-multicolumnwizard-row').length === 0) {
         this.createNewRow(mcw, tableId, null);
       }
+
+      this.validate(mcw);
     }
   }
 
@@ -94,6 +106,9 @@ class Multicolumnwizard {
     newRow.removeClass('row-copy');
     newRow.find('.btn-add').click((e) => {
       e.preventDefault();
+      if (this.isAtMaxItems(mcw)) {
+        return;
+      }
       this.createNewRow(mcw, tableID, $(e.target));
     });
     newRow.find('.btn-delete').click((e) => {
@@ -135,6 +150,13 @@ class Multicolumnwizard {
       }
     });
 
+    // The link wizard writes into a proxy field of the same record. Scope the lookup to
+    // that record: an IRRE collection holds one proxy field per child, and an unscoped
+    // selector would always resolve to the first child's field. mcw is used as the
+    // anchor because newRow is still detached from the document at this point.
+    const recordScope = mcw.closest('.form-irre-object');
+    const proxyScope = recordScope.length ? recordScope : $(document);
+
     $(newRow).find('[data-linkusefield]').each(function () {
       var $linkTextField = $(this).closest('.formengine-field-item').find('input.t3js-form-field-link-input[data-ignore]');
       var fieldName = $(this).attr('data-fieldname');
@@ -143,8 +165,8 @@ class Multicolumnwizard {
       var $linkIcon = $(this).closest('.form-control-wrap').find('.mwc-add-link-icon');
       var $linkEditLinkButton = $(this).closest('.form-control-wrap').find('.mwc-add-link-edit-link-button');
       var $linkClearLinkButton = null;
-      var $triggerLinkHiddenField = $('input[name $="[' + $(this).attr('data-linkusefield') + ']"]');
-      var $triggerLinkInput = $('a[data-item-name$="[' + $(this).attr('data-linkusefield') + ']"]');
+      var $triggerLinkHiddenField = proxyScope.find('input[name $="[' + $(this).attr('data-linkusefield') + ']"]');
+      var $triggerLinkInput = proxyScope.find('a[data-item-name$="[' + $(this).attr('data-linkusefield') + ']"]');
 
       if (jsonLinkExplanation) {
         if (jsonLinkExplanation[fieldName] && jsonLinkExplanation[fieldName]['text']) {
@@ -266,6 +288,119 @@ class Multicolumnwizard {
     }
   }
 
+  /**
+   * All rows currently held by the wizard.
+   *
+   * @param {jQuery} mcw Multicolumnwizard element
+   * @returns {jQuery} The row elements
+   */
+  getRows(mcw) {
+    return mcw.find('.ls-multicolumnwizard-row-container .ls-multicolumnwizard-row');
+  }
+
+  /**
+   * The minitems/maxitems limits configured in TCA. 0 means "no limit".
+   *
+   * @param {jQuery} mcw Multicolumnwizard element
+   * @returns {{min: number, max: number}} The limits
+   */
+  getLimits(mcw) {
+    return {
+      min: Number.parseInt(mcw.attr('data-minitems'), 10) || 0,
+      max: Number.parseInt(mcw.attr('data-maxitems'), 10) || 0,
+    };
+  }
+
+  /**
+   * @param {jQuery} mcw Multicolumnwizard element
+   * @returns {boolean} Whether another row would exceed maxitems
+   */
+  isAtMaxItems(mcw) {
+    const max = this.getLimits(mcw).max;
+    return max > 0 && this.getRows(mcw).length >= max;
+  }
+
+  /**
+   * Counts the rows that hold at least one value.
+   *
+   * The wizard always keeps one row on screen, so a single untouched row means
+   * "no items" - which is why minitems is measured against filled rows only.
+   *
+   * @param {jQuery} mcw Multicolumnwizard element
+   * @returns {number} The number of filled rows
+   */
+  countFilledRows(mcw) {
+    let filledRows = 0;
+    this.getRows(mcw).each(function () {
+      const isFilled = $(this).find('select, input, textarea').toArray().some((field) => {
+        const $field = $(field);
+        if ($field.attr('data-ignore')) {
+          return false;
+        }
+        if ($field.attr('type') === 'checkbox') {
+          return $field.is(':checked');
+        }
+        return String($field.val() ?? '').trim() !== '';
+      });
+      if (isFilled) {
+        filledRows += 1;
+      }
+    });
+
+    return filledRows;
+  }
+
+  /**
+   * Flags fields that stay below their configured minlength.
+   *
+   * FormEngine submits the form from JavaScript, so the browser never runs its own
+   * minlength check - it is folded into the same has-error gate as the row limits.
+   *
+   * @param {jQuery} mcw Multicolumnwizard element
+   * @returns {boolean} Whether any field violates its minlength
+   */
+  validateFieldLengths(mcw) {
+    let violated = false;
+    this.getRows(mcw).find('input[minlength], textarea[minlength]').each(function () {
+      const minLength = Number.parseInt($(this).attr('minlength'), 10) || 0;
+      const value = String($(this).val() ?? '');
+      const isInvalid = value !== '' && value.length < minLength;
+      $(this).toggleClass('has-error', isInvalid);
+      violated = violated || isInvalid;
+    });
+
+    return violated;
+  }
+
+  /**
+   * Enforces minitems, maxitems and the column length options.
+   *
+   * The add button is disabled at maxitems, and violations mark the json field with
+   * has-error - the class FormEngineValidation.isValid() looks for, which blocks the
+   * save and raises the standard "fields missing" modal.
+   *
+   * @param {jQuery} mcw Multicolumnwizard element
+   */
+  validate(mcw) {
+    const limits = this.getLimits(mcw);
+    const isAtMaxItems = this.isAtMaxItems(mcw);
+
+    this.getRows(mcw).find('.btn-add')
+      .toggleClass('disabled', isAtMaxItems)
+      .attr('aria-disabled', isAtMaxItems ? 'true' : null);
+
+    const hasTooManyRows = limits.max > 0 && this.getRows(mcw).length > limits.max;
+    const hasTooFewRows = limits.min > 0 && this.countFilledRows(mcw) < limits.min;
+    const isInvalid = hasTooManyRows || hasTooFewRows || this.validateFieldLengths(mcw);
+
+    mcw.find('.jsonfield')
+      .toggleClass('has-error', isInvalid)
+      .attr('aria-invalid', String(isInvalid));
+    mcw.closest('.t3js-formengine-validation-marker')
+      .find('.t3js-formengine-label')
+      .toggleClass('has-error', isInvalid);
+  }
+
   setJsonData(mcw) {
     var sessionData = [];
     mcw.find('.ls-multicolumnwizard-row-container .ls-multicolumnwizard-row').each(function () {
@@ -282,6 +417,7 @@ class Multicolumnwizard {
       sessionData.push(sessionRow);
     });
     mcw.find('.jsonfield').val(JSON.stringify(sessionData));
+    this.validate(mcw);
   }
 }
 

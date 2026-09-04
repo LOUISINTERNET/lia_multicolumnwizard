@@ -29,3 +29,7 @@
 .disable-default-close .close {
     display: none;
 }
+
+.ls-multicolumnwizard-limits {
+  margin-top: 1rem;
+}

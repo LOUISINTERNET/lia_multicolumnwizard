@@ -90,6 +90,74 @@ Implementation on parent elements
         ]
     ];
 
+Limiting the number of rows
+---------------------------
+
+The field level options :php:`minitems` and :php:`maxitems` limit how many rows the
+wizard accepts. They are named and behave like their counterparts on the native TCA
+types :php:`inline`, :php:`select` and :php:`group`. Both default to :php:`0`, which
+means "no limit".
+
+.. code-block:: php
+    :caption: TCA field configuration
+
+    'multicolumnwizard' => [
+        'exclude' => 1,
+        'label' => 'Buttons',
+        'config' => [
+            'type' => 'user',
+            'renderType' => 'multiColumnWizard',
+            'minitems' => 0,
+            'maxitems' => 4,
+            'columnFields' => [
+                // ...
+            ],
+        ],
+    ],
+
+*  :php:`maxitems` counts **rows**. Once it is reached, the "Create new record after
+   this record" button of every row is disabled. Records that already exceed the limit
+   are still rendered - they are flagged instead of silently truncated, so no data is
+   lost when a limit is lowered later on.
+*  :php:`minitems` counts **filled rows**. The wizard always keeps one row on screen,
+   so a single untouched row counts as zero items.
+
+Violations mark the field with the FormEngine error class. This blocks saving and
+raises the standard "fields missing" modal, the same way native TCA types do. Like
+those types, the limits are not enforced by the DataHandler.
+
+..  warning::
+    :php:`minitems` must not exceed :php:`maxitems`, and both must be non-negative
+    integers. Anything else throws an
+    :php:`LIA\LiaMulticolumnwizard\Exceptions\Backend\InvalidOptionValueException`
+    while rendering the form.
+
+Field length options
+--------------------
+
+Columns of type :php:`text` and :php:`textarea` accept :php:`max` and :php:`min` -
+named after the native TCA options for :php:`input` and :php:`text` - to limit the
+number of characters.
+
+.. code-block:: php
+    :caption: Column length options
+
+    'exampleMultiColumnWizardTextInput' => [
+        'divClass' => 'col-sm-2',
+        'type' => 'text',
+        'label' => 'Textfield',
+        'max' => 40,
+        'min' => 3,
+    ],
+
+*  :php:`max` renders as :html:`maxlength`, so the browser stops further input.
+   :php:`text` columns default to :php:`255`; :php:`textarea` columns stay uncapped
+   unless :php:`max` is set.
+*  :php:`min` renders as :html:`minlength` and is additionally checked in JavaScript,
+   because FormEngine submits the form itself and the browser therefore never runs its
+   own :html:`minlength` validation. Empty fields are never flagged - use
+   :php:`minitems` to require rows.
+
 Set up the DatabaseFileds in your database tables:
 
 .. code-block:: sql
