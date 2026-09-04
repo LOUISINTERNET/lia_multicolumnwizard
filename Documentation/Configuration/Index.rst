@@ -6,7 +6,9 @@ Configuration
 
 CType TCA Configuration
 ============================
-Here you can see a configuration with all the options for configuring the columns of the multicolumn wizard
+Here you can see a configuration with all the options for configuring the columns of the multicolumn wizard.
+The field level options are explained in :ref:`Limiting the number of rows <mcw-row-limits>`,
+:ref:`Field length options <mcw-length-options>` and :ref:`Reference index <mcw-reference-index>`.
 
 Implementation on parent elements
 ------------------------------------
@@ -20,12 +22,17 @@ Implementation on parent elements
         'config' => [
             'type' => 'user',
             'renderType' => 'multiColumnWizard',
+            'softref' => 'multiColumnWizardTypolink',
+            'minitems' => 0,
+            'maxitems' => 4,
             'columnFields' => [
                 'exampleMultiColumnWizardTextInput' => [
                     'divClass' => 'col-sm-2',
                     'type' => 'text',
                     'label' => 'Textfield'
                     'showLabelAboveField' => true,
+                    'max' => 40,
+                    'min' => 3,
                 ],
                 'exampleMultiColumnWizardTextareaInput' => [
                     'divClass' => 'col-sm-2',
@@ -34,6 +41,7 @@ Implementation on parent elements
                     'cols' => 40,
                     'rows' => 5
                     'showLabelAboveField' => true,
+                    'max' => 500,
                 ],
                 'exampleMultiColumnWizardCheckbox' => [
                     'divClass' => 'col-sm-2',
@@ -90,6 +98,8 @@ Implementation on parent elements
         ]
     ];
 
+.. _mcw-row-limits:
+
 Limiting the number of rows
 ---------------------------
 
@@ -132,6 +142,8 @@ those types, the limits are not enforced by the DataHandler.
     :php:`LIA\LiaMulticolumnwizard\Exceptions\Backend\InvalidOptionValueException`
     while rendering the form.
 
+.. _mcw-length-options:
+
 Field length options
 --------------------
 
@@ -157,6 +169,8 @@ number of characters.
    because FormEngine submits the form itself and the browser therefore never runs its
    own :html:`minlength` validation. Empty fields are never flagged - use
    :php:`minitems` to require rows.
+
+.. _mcw-reference-index:
 
 Reference index
 ---------------
@@ -330,6 +344,8 @@ you can use the option `'showLabelAboveField' => true`, if this is set the label
             'type' => 'text',
             'label' => 'Textxfield'
             'showLabelAboveField' => true,
+            'max' => 40,
+            'min' => 3,
         ],
         'fieldName_2' => [
             'divClass' => 'col-sm-2',
@@ -338,6 +354,7 @@ you can use the option `'showLabelAboveField' => true`, if this is set the label
             'showLabelAboveField' => true,
             'cols' => 40,
             'rows' => 5
+            'max' => 500,
         ],
         'fieldName_3' => [
             'divClass' => 'col-sm-2',

@@ -12,7 +12,7 @@
                report-issue="https://github.com/LOUISINTERNET/lia_multicolumnwizard/issues/new"
                edit-on-github-branch="main"
                edit-on-github="LOUISINTERNET/lia_multicolumnwizard"
-               typo3-core-preferred="12.4"
+               typo3-core-preferred="13.4"
                interlink-shortcode="lia/lia_multicolumnwizard"
     />
     <project title="LIA Multicolumnwizard"
