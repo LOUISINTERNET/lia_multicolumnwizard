@@ -7,18 +7,20 @@ FAQ
 ===
 
 ViewHelper
-========
+==========
 
 .. rst-class:: panel panel-default
 
 The ViewHelper doesn't work / can't be found
-============================================
+--------------------------------------------
 
 In order to use the ViewHelpers of the MultiColumnWizard you need to import the namespace.
 
 ..  tabs::
+
     ..  group-tab:: Tag-Attribute
-        Import the namespace in the begining html-Tag of your Template like this:
+
+        Import the namespace in the beginning html-Tag of your Template like this:
 
         .. code-block:: html
 
@@ -28,10 +30,11 @@ In order to use the ViewHelpers of the MultiColumnWizard you need to import the 
             >
 
     ..  group-tab:: Inline
+
         Use this line in your template before using any MulticolumnWizard-ViewHelper:
 
         .. code-block:: typoscript
 
-          {namespace mcw=LIA/LiaMulticolumnwizard/ViewHelpers}
+          {namespace mcw=LIA\LiaMulticolumnwizard\ViewHelpers}
 
-See also `Import ViewHelper namespaces<https://docs.typo3.org/permalink/t3coreapi:fluid-syntax-viewhelpers-import-namespaces>`__
+See also `Import ViewHelper namespaces <https://docs.typo3.org/permalink/t3coreapi:fluid-syntax-viewhelpers-import-namespaces>`__

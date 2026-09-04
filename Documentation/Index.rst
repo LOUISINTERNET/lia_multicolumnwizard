@@ -53,9 +53,10 @@ This extension adds an new TCA-Type that allows to group fields into rows that c
 
         A documentation of provided ViewHelpers and how to use them.
 
-    ..  card:: :ref:`Frequently Ask Questions <FAQ>`
+    ..  card:: :ref:`Frequently Asked Questions <FAQ>`
 
         Answers to common questions regarding this extension.
+
 ----
 
 ..  toctree::
