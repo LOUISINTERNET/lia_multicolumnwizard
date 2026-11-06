@@ -1,4 +1,12 @@
 import $ from "jquery";
+import Modal from "@typo3/backend/modal.js";
+
+/**
+ * Event the TYPO3 v14 link browser dispatches with the chosen link
+ * (FormEngineLinkBrowserSetLinkEvent). Referenced by name, because the module does not
+ * exist in TYPO3 v13, where the link browser writes into the target input instead.
+ */
+const LINK_BROWSER_SET_LINK_EVENT = 'typo3:form-engine:link-browser:set-link';
 
 class Multicolumnwizard {
 
@@ -126,7 +134,9 @@ class Multicolumnwizard {
       $(e.target).closest('.ls-multicolumnwizard-row').insertBefore($(e.target).closest('.ls-multicolumnwizard-row').prev());
       this.setJsonData(mcw);
     });
-    newRow.find('input[type="text"], textarea').blur(() => {
+    // On every keystroke, not on blur: saving with the cursor still in the field (Enter,
+    // keyboard shortcut) fires no blur, so the value would miss the submitted JSON.
+    newRow.find('input[type="text"], textarea').on('input', () => {
       this.setJsonData(mcw);
     });
     newRow.find('input[type="checkbox"], select').change(() => {
@@ -150,132 +160,8 @@ class Multicolumnwizard {
       }
     });
 
-    // The link wizard writes into a proxy field of the same record. Scope the lookup to
-    // that record: an IRRE collection holds one proxy field per child, and an unscoped
-    // selector would always resolve to the first child's field. mcw is used as the
-    // anchor because newRow is still detached from the document at this point.
-    const recordScope = mcw.closest('.form-irre-object');
-    const proxyScope = recordScope.length ? recordScope : $(document);
-
-    $(newRow).find('[data-linkusefield]').each(function () {
-      var $linkTextField = $(this).closest('.formengine-field-item').find('input.t3js-form-field-link-input[data-ignore]');
-      var fieldName = $(this).attr('data-fieldname');
-      var $linkHiddenField = $(this).closest('.form-control-wrap').find('input[data-name]');
-      var $originalLinkTextField = $(this).closest('.form-control-wrap').find('input[type="text"][data-formengine-input-initialized]');
-      var $linkIcon = $(this).closest('.form-control-wrap').find('.mwc-add-link-icon');
-      var $linkEditLinkButton = $(this).closest('.form-control-wrap').find('.mwc-add-link-edit-link-button');
-      var $linkClearLinkButton = null;
-      var $triggerLinkHiddenField = proxyScope.find('input[name $="[' + $(this).attr('data-linkusefield') + ']"]');
-      var $triggerLinkInput = proxyScope.find('a[data-item-name$="[' + $(this).attr('data-linkusefield') + ']"]');
-
-      if (jsonLinkExplanation) {
-        if (jsonLinkExplanation[fieldName] && jsonLinkExplanation[fieldName]['text']) {
-          $linkTextField.val(jsonLinkExplanation[fieldName]['text']);
-          $linkEditLinkButton.removeClass('disabled');
-          $linkEditLinkButton.removeAttr('disabled');
-          $linkTextField.attr('readonly', 'readonly');
-        } else {
-          if ($linkHiddenField.val() != '') {
-            $linkTextField.val($linkHiddenField.val());
-            $linkEditLinkButton.removeClass('disabled');
-            $linkEditLinkButton.removeAttr('disabled');
-            $linkTextField.attr('readonly', 'readonly');
-          }
-        }
-        if (jsonLinkExplanation[fieldName] && jsonLinkExplanation[fieldName]['icon']) {
-          $linkIcon.html(jsonLinkExplanation[fieldName]['icon']);
-        }
-      }
-
-      $triggerLinkInput.closest('.form-section').hide();
-      var _this = this;
-      $linkTextField.keyup(function () {
-        if (!$linkClearLinkButton) {
-          $linkTextField.after($linkTextField.closest('.input-group').find('.mwc-close'));
-          $linkClearLinkButton = $linkTextField.closest('.form-control-clearable-wrapper').find('.mwc-close');
-          $linkClearLinkButton.css('display', 'inline-block');
-          $linkClearLinkButton.click(function (e) {
-            e.preventDefault();
-            $linkIcon.html('');
-            $linkHiddenField.val('');
-            $linkTextField.val('');
-            $linkTextField.removeAttr('readonly');
-            $linkClearLinkButton.css('visibility', 'hidden');
-            $(this).closest('.form-control-wrap').addClass('has-change');
-            multicolumnwizard.setJsonData(mcw);
-          });
-        }
-        $linkClearLinkButton.css('visibility', 'visible');
-        $linkHiddenField.val($(this).val());
-        $(this).closest('.form-control-wrap').addClass('has-change');
-        multicolumnwizard.setJsonData(mcw);
-      });
-
-      $linkEditLinkButton.click(function (e) {
-        e.preventDefault();
-        $linkTextField.removeAttr('readonly');
-        if (!$linkClearLinkButton) {
-          $linkTextField.after($linkTextField.closest('.input-group').find('.mwc-close'));
-          $linkClearLinkButton = $linkTextField.closest('.form-control-clearable-wrapper').find('.mwc-close');
-          $linkClearLinkButton.css('display', 'inline-block');
-          $linkClearLinkButton.click(function (e) {
-            e.preventDefault();
-            $linkIcon.html('');
-            $linkHiddenField.val('');
-            $linkTextField.val('');
-            $linkTextField.removeAttr('readonly');
-            $linkClearLinkButton.css('visibility', 'hidden');
-            $(this).closest('.form-control-wrap').addClass('has-change');
-            multicolumnwizard.setJsonData(mcw);
-          });
-        }
-        $linkClearLinkButton.css('visibility', 'visible');
-
-        // Set original link text field value
-        $originalLinkTextField.val($linkHiddenField.val());
-
-        // Hide linkTextField and show originalLinkTextField
-        $linkTextField.hide();
-        $originalLinkTextField.show();
-      });
-      $(this).click(function (e) {
-        e.preventDefault();
-        if (!$triggerLinkInput.length) {
-          console.warn('[MCW] Link proxy field not found for linkUseField "' + $(this).attr('data-linkusefield') + '". Ensure the field is in showitem.');
-          return;
-        }
-        $triggerLinkHiddenField.val($linkHiddenField.val());
-        $triggerLinkHiddenField.off('change');
-        $triggerLinkHiddenField.on('change', function () {
-          $linkHiddenField.val($triggerLinkHiddenField.val());
-          $linkEditLinkButton.addClass('disabled');
-          $linkEditLinkButton.attr('disabled', 'disabled');
-          $linkIcon.html('');
-          $linkTextField.val($triggerLinkHiddenField.val()).addClass('has-change');
-          if (!$linkClearLinkButton) {
-            $linkTextField.after($linkTextField.closest('.input-group').find('.mwc-close'));
-            $linkClearLinkButton = $linkTextField.closest('.form-control-clearable-wrapper').find('.mwc-close');
-            $linkClearLinkButton.css('display', 'inline-block');
-            $linkClearLinkButton.click(function (e) {
-              e.preventDefault();
-              $linkIcon.html('');
-              $linkHiddenField.val('');
-              $linkTextField.val('');
-              $linkTextField.removeAttr('readonly');
-              $linkClearLinkButton.css('visibility', 'hidden');
-              $(this).closest('.form-control-wrap').addClass('has-change');
-              multicolumnwizard.setJsonData(mcw);
-            });
-          }
-          $(this).closest('.form-control-wrap').addClass('has-change');
-          $linkClearLinkButton.css('visibility', 'visible');
-          $linkTextField.removeAttr('readonly');
-          $triggerLinkHiddenField.off('change');
-          $triggerLinkHiddenField.val('');
-          multicolumnwizard.setJsonData(mcw);
-        });
-        $triggerLinkInput[0].click();
-      });
+    newRow.find('.mcw-link-browser-trigger').each((_index, trigger) => {
+      this.initializeLinkColumn(mcw, $(trigger), jsonLinkExplanation);
     });
 
     if (_element == null) {
@@ -286,6 +172,129 @@ class Multicolumnwizard {
     if (callSetJson) {
       this.setJsonData(mcw);
     }
+  }
+
+  /**
+   * Wires the text input, the clear and edit buttons and the link browser of one link column.
+   *
+   * @param {jQuery} mcw Multicolumnwizard element
+   * @param {jQuery} $trigger The button that opens the link browser
+   * @param {Object} jsonLinkExplanation Link explanations of the row, keyed by column
+   */
+  initializeLinkColumn(mcw, $trigger, jsonLinkExplanation) {
+    const fieldName = $trigger.attr('data-fieldname');
+    const $wrap = $trigger.closest('.form-control-wrap');
+    const $linkTextField = $trigger.closest('.formengine-field-item').find('input.t3js-form-field-link-input[data-ignore]');
+    const $linkHiddenField = $wrap.find('input[data-name]');
+    const $originalLinkTextField = $wrap.find('input[type="text"][data-formengine-input-initialized]');
+    const $linkIcon = $wrap.find('.mwc-add-link-icon');
+    const $linkEditLinkButton = $wrap.find('.mwc-add-link-edit-link-button');
+    let $linkClearLinkButton = null;
+
+    const showClearButton = () => {
+      if (!$linkClearLinkButton) {
+        $linkTextField.after($linkTextField.closest('.input-group').find('.mwc-close'));
+        $linkClearLinkButton = $linkTextField.closest('.form-control-clearable-wrapper').find('.mwc-close');
+        $linkClearLinkButton.css('display', 'inline-block');
+        $linkClearLinkButton.click((e) => {
+          e.preventDefault();
+          $linkIcon.html('');
+          $linkHiddenField.val('');
+          $linkTextField.val('');
+          $linkTextField.removeAttr('readonly');
+          $linkClearLinkButton.css('visibility', 'hidden');
+          $wrap.addClass('has-change');
+          this.setJsonData(mcw);
+        });
+      }
+      $linkClearLinkButton.css('visibility', 'visible');
+    };
+
+    if (jsonLinkExplanation) {
+      if (jsonLinkExplanation[fieldName] && jsonLinkExplanation[fieldName]['text']) {
+        $linkTextField.val(jsonLinkExplanation[fieldName]['text']);
+        $linkEditLinkButton.removeClass('disabled');
+        $linkEditLinkButton.removeAttr('disabled');
+        $linkTextField.attr('readonly', 'readonly');
+      } else if ($linkHiddenField.val() != '') {
+        $linkTextField.val($linkHiddenField.val());
+        $linkEditLinkButton.removeClass('disabled');
+        $linkEditLinkButton.removeAttr('disabled');
+        $linkTextField.attr('readonly', 'readonly');
+      }
+      if (jsonLinkExplanation[fieldName] && jsonLinkExplanation[fieldName]['icon']) {
+        $linkIcon.html(jsonLinkExplanation[fieldName]['icon']);
+      }
+    }
+
+    $linkTextField.keyup(() => {
+      showClearButton();
+      $linkHiddenField.val($linkTextField.val());
+      $wrap.addClass('has-change');
+      this.setJsonData(mcw);
+    });
+
+    $linkEditLinkButton.click((e) => {
+      e.preventDefault();
+      $linkTextField.removeAttr('readonly');
+      showClearButton();
+
+      // Set original link text field value
+      $originalLinkTextField.val($linkHiddenField.val());
+
+      // Hide linkTextField and show originalLinkTextField
+      $linkTextField.hide();
+      $originalLinkTextField.show();
+    });
+
+    $trigger.click((e) => {
+      e.preventDefault();
+      this.openLinkBrowser(mcw, $trigger.attr('href'), $linkHiddenField.val(), (typoLink) => {
+        $linkHiddenField.val(typoLink);
+        $linkEditLinkButton.addClass('disabled');
+        $linkEditLinkButton.attr('disabled', 'disabled');
+        $linkIcon.html('');
+        $linkTextField.val(typoLink).addClass('has-change');
+        showClearButton();
+        $wrap.addClass('has-change');
+        $linkTextField.removeAttr('readonly');
+        this.setJsonData(mcw);
+      });
+    });
+  }
+
+  /**
+   * Opens the core link browser in a modal and hands the chosen link to the callback.
+   *
+   * The link browser reports back to the hidden target input of the wizard, named by
+   * the "itemName" in the URL: TYPO3 v13 writes into it and dispatches "change", v14
+   * dispatches an event on the modal, which is forwarded to the same input. Only one
+   * link browser is open at a time, so the target input is shared by all link columns
+   * of a wizard and re-bound on every opening.
+   *
+   * @param {jQuery} mcw Multicolumnwizard element
+   * @param {string} url Link browser URL rendered by the form element
+   * @param {string} currentValue Link of the row, preselected in the link browser
+   * @param {function(string)} onLinkSelected Receives the chosen typolink
+   */
+  openLinkBrowser(mcw, url, currentValue, onLinkSelected) {
+    const $target = mcw.find('.mcw-link-browser-target');
+    $target.val('');
+    $target.off('change').on('change', () => {
+      $target.off('change');
+      onLinkSelected($target.val());
+    });
+
+    const modal = Modal.advanced({
+      type: Modal.types.iframe,
+      content: url + '&P[currentValue]=' + encodeURIComponent(currentValue),
+      size: Modal.sizes.large,
+    });
+    modal.addEventListener(LINK_BROWSER_SET_LINK_EVENT, (event) => {
+      $target.val(event.value);
+      $target[0].dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+      modal.hideModal();
+    });
   }
 
   /**

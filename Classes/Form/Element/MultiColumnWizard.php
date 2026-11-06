@@ -15,7 +15,9 @@ use LIA\LiaMulticolumnwizard\Exceptions\Backend\InvalidOptionValueException;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Backend\Form\Element\AbstractFormElement;
 use TYPO3\CMS\Backend\Form\Event\ModifyLinkExplanationEvent;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\LinkHandling\Exception\UnknownLinkHandlerException;
@@ -62,6 +64,12 @@ class MultiColumnWizard extends AbstractFormElement
      */
     private const LENGTH_AWARE_COLUMN_TYPES = ['text', 'textarea'];
 
+    /**
+     * Column options of "link" columns that restrict the link browser, passed through
+     * to it as the core LinkPopup field control does.
+     */
+    private const LINK_BROWSER_OPTIONS = ['allowedTypes', 'allowedOptions', 'allowedFileExtensions'];
+
     /*########################*/
     /*####PUBLIC FUNCTIONS####*/
     /*########################*/
@@ -70,6 +78,8 @@ class MultiColumnWizard extends AbstractFormElement
         private readonly ViewFactoryInterface $viewFactory,
         private readonly IconFactory $iconFactory,
         private readonly LinkService $linkService,
+        private readonly UriBuilder $uriBuilder,
+        private readonly HashService $hashService,
     ) {}
 
     /**
@@ -105,10 +115,16 @@ class MultiColumnWizard extends AbstractFormElement
         $fieldInformationResult = $this->renderFieldInformation();
         $resultArray = $this->mergeChildReturnIntoExistingResult($resultArray, $fieldInformationResult, false);
 
+        $linkBrowserItemName = $this->data['parameterArray']['itemFormElName'] . '[mcwLinkBrowser]';
+
         $view->assignMultiple([
             'data' => $this->data,
             'fieldInformation' => $fieldInformationResult['html'],
-            'columnFields' => $this->normalizeColumnFields($config['columnFields']),
+            'columnFields' => $this->addLinkBrowserUrls(
+                $this->normalizeColumnFields($config['columnFields']),
+                $linkBrowserItemName
+            ),
+            'linkBrowserItemName' => $linkBrowserItemName,
             'minItems' => $minItems,
             'maxItems' => $maxItems,
             'linkExplanation' => json_encode($linkExplanations),
@@ -165,6 +181,93 @@ class MultiColumnWizard extends AbstractFormElement
         }
 
         return $columnFields;
+    }
+
+    /**
+     * Gives every "link" column the URL of the core link browser.
+     *
+     * The wizard opens the link browser itself, with the parameters the core LinkPopup
+     * field control would send. The link browser reports the chosen link back to the
+     * element named by "itemName": TYPO3 v13 writes into the element carrying that
+     * data-formengine-input-name, v14 dispatches an event the wizard listens to. Both
+     * paths end in the hidden target input of the wizard (see Default.html), so no TCA
+     * field has to serve as proxy.
+     *
+     * @param array $columnFields The column configuration as defined in TCA.
+     * @param string $linkBrowserItemName The name of the hidden target input.
+     * @return array The column configuration, "link" columns with a "linkBrowserUrl".
+     */
+    private function addLinkBrowserUrls(array $columnFields, string $linkBrowserItemName): array
+    {
+        foreach ($columnFields as $columnName => $columnField) {
+            if (($columnField['type'] ?? '') !== 'link') {
+                continue;
+            }
+
+            if (array_key_exists('linkUseField', $columnField)) {
+                throw new InvalidOptionValueException(
+                    sprintf(
+                        'multiColumnWizard column "%s": option "linkUseField" was removed in 3.0.0. The wizard opens the link browser itself; remove the option and the proxy field it names.',
+                        $columnName
+                    ),
+                    1793952001
+                );
+            }
+
+            $linkBrowserArguments = [];
+            foreach (self::LINK_BROWSER_OPTIONS as $option) {
+                if (!array_key_exists($option, $columnField)) {
+                    continue;
+                }
+                $linkBrowserArguments[$option] = implode(',', $this->readStringList($columnField, $option, (string)$columnName));
+            }
+
+            $columnFields[$columnName]['linkBrowserUrl'] = (string)$this->uriBuilder->buildUriFromRoute('wizard_link', [
+                'P' => [
+                    'params' => $linkBrowserArguments,
+                    'table' => $this->data['tableName'],
+                    'uid' => $this->data['databaseRow']['uid'],
+                    'pid' => $this->data['databaseRow']['pid'],
+                    'field' => $this->data['fieldName'],
+                    'formName' => 'editform',
+                    'itemName' => $linkBrowserItemName,
+                    'hmac' => $this->hashService->hmac('editform' . $linkBrowserItemName, 'wizard_js'),
+                ],
+            ]);
+        }
+
+        return $columnFields;
+    }
+
+    /**
+     * Reads an option that must be a non-empty list of non-empty strings.
+     *
+     * @param array $options The option set to read from.
+     * @param string $option The option name.
+     * @param string $columnName The column the option belongs to, for the error message.
+     * @return list<string> The option value.
+     */
+    private function readStringList(array $options, string $option, string $columnName): array
+    {
+        $value = $options[$option];
+        $isStringList = is_array($value)
+            && $value !== []
+            && array_is_list($value)
+            && array_filter($value, static fn(mixed $item): bool => !is_string($item) || $item === '') === [];
+
+        if (!$isStringList) {
+            throw new InvalidOptionValueException(
+                sprintf(
+                    'multiColumnWizard column "%s": option "%s" must be a non-empty list of strings, got "%s".',
+                    $columnName,
+                    $option,
+                    get_debug_type($value)
+                ),
+                1793952002
+            );
+        }
+
+        return $value;
     }
 
     /**

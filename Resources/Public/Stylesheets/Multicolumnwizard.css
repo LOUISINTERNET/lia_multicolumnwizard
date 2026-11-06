@@ -3,10 +3,16 @@
   position: relative;
 }
 
+/* Bottom-aligned, so the buttons line up with the inputs even when a column shows its
+   label above the field (showLabelAboveField). */
 .ls-multicolumnwizard-buttons {
   position: absolute;
   right: 0px;
-  top: 0px;
+  bottom: 0px;
+}
+
+.ls-multicolumnwizard-row-container .ls-multicolumnwizard-row + .ls-multicolumnwizard-row {
+  margin-top: 0.75rem;
 }
 
 .ls-multicolumnwizard-row-container

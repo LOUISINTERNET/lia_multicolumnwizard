@@ -85,18 +85,11 @@ Implementation on parent elements
                     'divClass' => 'col-sm-2',
                     'type' => 'link',
                     'label' => 'Link',
-                    'linkUseField' => 'fieldname_hidden_link_field',
+                    'allowedTypes' => ['page', 'url', 'file'],
                 ],
             ]
         ]
     ],
-    'fieldname_hidden_link_field' = [
-        'exclude' => 1,
-        'label' => 'Hidden link field used by the link wizard of exampleMultiColumnWizardLinkInput',
-        'config' => [
-            'type' => 'link',
-        ]
-    ];
 
 .. _mcw-row-limits:
 
@@ -297,12 +290,27 @@ Your Icon.json file schould look like this.
 Link Field
 ~~~~~~~~~~
 
-In order to use the link feature you need to also create a field of type link in the current TCA and reference it in the multicolumnwizard link 
-field in the linkUseField attribute. This field will be automatically hidden by Javascript. 
+A column of type :php:`link` opens the core link browser, in TYPO3 v13 and v14 alike.
+It works for wizard fields in a record, in an IRRE child and in a FlexForm.
+
+Three optional column options restrict the link browser. They take the same values
+as their counterparts on the native TCA type :php:`link`, but are set directly on
+the column:
+
+*  :php:`allowedTypes` - link handler identifiers offered in the link browser, for
+   example :php:`['page', 'url', 'file']`. Unlike the native TCA type, the value
+   :php:`record` is not expanded; list the identifiers of the record link handlers
+   from :typoscript:`TCEMAIN.linkHandler` instead.
+*  :php:`allowedOptions` - link attributes offered in the link browser, for example
+   :php:`['target', 'title']`.
+*  :php:`allowedFileExtensions` - file extensions selectable in the file tab, for
+   example :php:`['pdf', 'docx']`.
+
+Each option must be a non-empty list of non-empty strings; anything else throws an
+:php:`InvalidOptionValueException`. Without them the link browser offers everything.
 
 .. code-block:: php
     :caption: Link Field Example
-    :emphasize-lines: 8,13,21
 
     $ctype = &$GLOBALS['TCA']['tt_content']['types']['lia_ctypes_mcw_test'];
 
@@ -311,24 +319,9 @@ field in the linkUseField attribute. This field will be automatically hidden by 
             'divClass' => 'col-sm-2',
             'type' => 'link',
             'label' => 'Link',
-            'linkUseField' => 'fieldname_hidden_link_field',
+            'allowedTypes' => ['page', 'url'],
         ],
     ];
-
-    // the hidden link field for exampleMultiColumnWizardLinkInput
-    $ctype['columnsOverrides']['fieldname_hidden_link_field'] = [
-        'exclude' => 1,
-        'label' => 'Link',
-        'config' => [
-            'type' => 'link',
-        ]
-    ];
-
-    $ctype['types'][1]['showitem'] = '... , tx_lia_multicolumnwizard, fieldname_hidden_link_field, ...';
-
-
-..  warning::
-    The `fieldname_hidden_link_field` Field has to be added to showItems to be rendered in the Form, otherwise the linkwizard will not be shown.
 
 Implementation on child elements
 --------------------------------
@@ -398,19 +391,10 @@ you can use the option `'showLabelAboveField' => true`, if this is set the label
             'divClass' => 'col-sm-2',
             'type' => 'link',
             'label' => 'Link',
-            'linkUseField' => 'fieldname_hidden_link_field',
         ],
     ];
 
-    $tca_columns['fieldname_hidden_link_field'] = [
-        'exclude' => 1,
-        'label' => 'Hidden link field for the link wizard of fieldName_8',
-        'config' => [
-            'type' => 'link',
-        ]
-    ];
-
-    $overrideChildTca['types'][1]['showitem'] = '... ,tx_lia_multicolumnwizard, fieldname_hidden_link_field, ...';
+    $overrideChildTca['types'][1]['showitem'] = '... ,tx_lia_multicolumnwizard, ...';
 
 
 

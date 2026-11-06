@@ -1,7 +1,7 @@
 <div xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" class="t3js-formengine-validation-marker" data-namespace-typo3-fluid="true">
   <label class="form-label t3js-formengine-label">
       <span>{data.parameterArray.fieldConf.label}</span>
-      <code>[{data.fieldName}]</code>
+      <code>[{f:if(condition: data.flexFormFieldName, then: data.flexFormFieldName, else: data.fieldName)}]</code>
   </label>
   <f:format.raw>{fieldInformation}</f:format.raw>
   <div id="ls-multicolumnwizard-{data.databaseRow.uid}" class="ls-multicolumnwizard-wrapper" data-field-id="0" data-minitems="{minItems}" data-maxitems="{maxItems}">
@@ -28,6 +28,8 @@
     <div class="row-destination"></div>
     <input type="hidden" name="{data.parameterArray.itemFormElName}" value="{data.parameterArray.itemFormElValue}" class="jsonfield">
     <input type="hidden" value="{linkExplanation}" class="linkExplanation">
+    <!-- The link browser writes the chosen link here; it has no name, so it is never submitted. -->
+    <input type="hidden" value="" class="mcw-link-browser-target" data-formengine-input-name="{linkBrowserItemName}">
   </div>
   <f:if condition="{minItems} > 0 || {maxItems} > 0">
     <div class="form-text ls-multicolumnwizard-limits">

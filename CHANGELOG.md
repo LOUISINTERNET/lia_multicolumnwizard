@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [3.0.0] - 2026-11-06
+
+### Breaking changes
+- The column option `linkUseField` was removed. A link column that still sets it throws an `InvalidOptionValueException` (code `1793952001`), and records with such a wizard can no longer be edited until the option is gone. The wizard opens the link browser itself now, so the proxy field of type `link` that `linkUseField` named is not needed anymore
+- The stored rows keep their JSON format; no data migration is needed
+
+#### Upgrade from 2.x
+1. Raise the constraint: `composer require "lia/lia_multicolumnwizard:^3.0"`
+2. Find all proxy fields: `grep -rn "linkUseField" extensions/ packages/ config/` (TCA in PHP and `<linkUseField>` in FlexForm XML)
+3. Remove the `linkUseField` option from every link column
+4. Move restrictions of the proxy field's TCA to the wizard column: `allowedTypes` → `allowedTypes`, `appearance.allowedOptions` → `allowedOptions`, `appearance.allowedFileExtensions` → `allowedFileExtensions`
+5. Remove the proxy field if it existed only for the wizard: `showitem` / palette entry, TCA column, `ext_tables.sql` column, label, and any code that only positioned or hid it. Keep real fields such as `header_link` that served as proxy
+6. Flush caches and drop the proxy column in Analyze Database Structure
+7. Open a record with the wizard, pick, change and clear a link, save
+
+See the README for before/after examples.
+
+### Changed
+- Link columns open the core link browser themselves. The wizard renders the link browser URL per link column and receives the chosen link in a hidden, never submitted input of its own: TYPO3 v13 writes into it, v14 dispatches its set-link event on the modal, which the wizard forwards to the same input. Link columns therefore work in records, IRRE children and FlexForms
+- Link columns accept the column options `allowedTypes`, `allowedOptions` and `allowedFileExtensions`, passed to the link browser like the native TCA type `link` does; `record` is not expanded to the record link handlers
+
+### Fixed
+- Text and textarea columns wrote their value into the stored JSON only on blur. Saving with the cursor still in the field (for example with Enter) fires no blur, so the last typed value was lost and an empty column was stored. The JSON is now updated on every input
+- With `showLabelAboveField`, the row buttons (add, delete, move) lined up with the column labels instead of the inputs, and consecutive rows had no spacing, so a label touched the input of the row above. The buttons are bottom-aligned now and rows are spaced by `0.75rem`
+- A wizard in a FlexForm showed the record column (`[pi_flexform]`) next to its label instead of its own FlexForm field name (for example `[settings.links]`). Only the label was wrong; the value was always stored under the FlexForm field
+
+### Removed
+- Column option `linkUseField` and the proxy field it named (see Breaking changes)
+
 ## [2.3.0] - 2026-09-04
 
 ### Added
